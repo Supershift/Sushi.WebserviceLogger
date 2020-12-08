@@ -18,5 +18,14 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="index"></param>
         /// <returns></returns>
         Task StoreLogItemAsync<T>(T logItem, string index) where T : LogItem;
+
+        /// <summary>
+        /// Stores the provided logitem.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="logItem"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        void StoreLogItem<T>(T logItem, string index) where T : LogItem;
     }
 }

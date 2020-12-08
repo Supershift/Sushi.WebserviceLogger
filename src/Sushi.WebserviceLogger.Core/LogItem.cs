@@ -35,9 +35,11 @@ namespace Sushi.WebserviceLogger.Core
         /// Gets or sets a value in milliseconds indicating the total time passed between request and response.
         /// </summary>
         public int? Duration { get; set; }
+
         /// <summary>
         /// Gets or sets the <see cref="ContextType"/> that this <see cref="LogItem"/> was created. 
         /// </summary>
+        [Keyword]
         public ContextType ContextType { get; set; }
         
         /// <summary>
@@ -66,7 +68,8 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets a value that allows you to link multiple logitems. 
         /// For instance, all logitems created during the execution of one web request can be linked together by assigning them the same ID.
-        /// </summary>        
+        /// </summary>   
+        [Keyword]
         public string CorrelationID { get; set; }
 
         /// <summary>
@@ -130,6 +133,11 @@ namespace Sushi.WebserviceLogger.Core
         /// Gets or sets an object containing data about the body sent in the request.
         /// </summary>
         public Body Body { get; set; }
+
+        /// <summary>
+        /// Gets or sets the soap action if the request is part of a SOAP communication.
+        /// </summary>
+        public string SoapAction { get; set; }
     }
 
     /// <summary>
@@ -139,7 +147,7 @@ namespace Sushi.WebserviceLogger.Core
     {
         /// <summary>
         /// Gets or sets the http status for the response.
-        /// </summary>
+        /// </summary>        
         public int? HttpStatusCode { get; set; }
         /// <summary>
         /// Gets or sets a collection of httpheaders sent in the response.
@@ -159,6 +167,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets the <see cref="Core.ContentType"/> of the data in the body.
         /// </summary>
+        [Keyword]
         public ContentType ContentType { get; set; }
         /// <summary>
         /// Gets or sets the data in the body.

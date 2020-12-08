@@ -97,19 +97,28 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="SampleAsmxService.asmx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleAsmxServerTracer.cs" />
+    <Compile Include="SampleAsmxService.asmx.cs">
+      <DependentUpon>SampleAsmxService.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SampleController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="secrets.json" />
+    <Content Include="secrets.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -118,9 +127,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sushi.WebserviceLogger.Asmx\Sushi.WebserviceLogger.Asmx.csproj">
+      <Project>{401b1bab-aeb5-4d5e-abeb-9121770a3740}</Project>
+      <Name>Sushi.WebserviceLogger.Asmx</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sushi.WebserviceLogger.Core\Sushi.WebserviceLogger.Core.csproj">
       <Project>{99627baf-1007-41fa-8755-6793648f35e2}</Project>
       <Name>Sushi.WebserviceLogger.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sushi.WebserviceLogger.Persisters\Sushi.WebserviceLogger.Persisters.csproj">
+      <Project>{49666e26-030e-4775-932f-40d6c75523e3}</Project>
+      <Name>Sushi.WebserviceLogger.Persisters</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

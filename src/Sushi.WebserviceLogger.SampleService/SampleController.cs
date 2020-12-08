@@ -13,7 +13,7 @@ namespace Sushi.WebserviceLogger.SampleService
         [Route("api/ping")]
         public IHttpActionResult Ping()
         {
-            return Ok();
+            return Ok("Hello world");
         }
 
         [HttpGet]

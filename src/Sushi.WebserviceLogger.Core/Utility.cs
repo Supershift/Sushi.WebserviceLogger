@@ -126,6 +126,20 @@ namespace Sushi.WebserviceLogger.Core
         }
 
         /// <summary>
+        /// Creates an instance of <see cref="Url"/> from a string representing a URL.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static Url GetUrlFromString(string url)
+        {
+            //conver string to uri            
+            if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return GetUrlFromUri(uri);
+            else
+                return new Url() { AbsoluteUrl = url };
+        }
+
+        /// <summary>
         /// Creates an instance of <see cref="Url"/> from a <see cref="Uri"/> object.
         /// </summary>
         /// <param name="uri"></param>

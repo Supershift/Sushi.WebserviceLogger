@@ -89,87 +89,23 @@ namespace Sushi.WebserviceLogger.Core
         /// Add a single log item with request/response data into ElasticSearch.
         /// </summary>
         /// <returns></returns>
-        public async Task<T> AddLogItemAsync(RequestData requestData, ResponseData responseData, ContextType contextType, string correlationID = null)
+        public async Task<T> AddLogItemAsync(RequestData requestData, ResponseData responseData, ContextType contextType)
         {
             T logItem = null;
             try
             {
                 //validate configuration
 
-
-                //validate input
-                if (requestData == null)
-                    throw new ArgumentNullException(nameof(requestData));
-                if (responseData == null)
-                    throw new ArgumentNullException(nameof(responseData));
-
                 //create log item
-                logItem = new T()
-                {
-                    ClientIP = requestData.ClientIP,                    
-                    ContextType = contextType,
-                    Created = DateTime.UtcNow,                    
-                    Id = Guid.NewGuid().ToString(),
-                    Request = new Request()
-                    {
-                        Url = requestData.Url,
-                        Method = requestData.Method,
-                        Body = requestData.Body,
-                        Headers = requestData.Headers
-                    },
-                    Response = new Response()
-                    {
-                        Body = responseData.Body,
-                        Headers = responseData.Headers,
-                        HttpStatusCode = responseData.HttpStatusCode
-                    },                    
-                    Start = requestData.Started,
-                    End = responseData.Started,
-                    Service = requestData.Url?.Address 
-                };
-
-                //set duration if request and response dates are known
-                if (logItem.Start != null && logItem.End != null)
-                    logItem.Duration = (int)(logItem.End - logItem.Start).GetValueOrDefault().TotalMilliseconds;
+                logItem = CreateLogItem(requestData, responseData, contextType);
 
                 //set index name
                 string index = null;
                 if (IndexNameCallback != null)
                     index = IndexNameCallback(logItem.Start.Value);
-                if(string.IsNullOrWhiteSpace(index))
+                if (string.IsNullOrWhiteSpace(index))
                     index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 
-                //call delegate correlationID  if defined
-                if (CorrelationIdCallback != null)
-                    logItem.CorrelationID = CorrelationIdCallback();
-
-                //call delegate logitem function if defined
-                if (AddLogItemCallback != null)
-                {
-                    var callbacks = AddLogItemCallback.GetInvocationList();
-                    foreach(var callback in callbacks)
-                    {
-                        if(logItem != null)
-                            logItem = callback.DynamicInvoke(logItem) as T;
-                    }
-                }
-                //logItem = AddLogItemCallback(logItem);
-
-                if (logItem == null)
-                    return null;
-
-                //truncate log item body fields if too long
-                if (requestData?.Body?.Data?.Length > MaxBodyContentLength)
-                {
-                    requestData.Body.Data = requestData.Body.Data.Substring(0, MaxBodyContentLength);
-                    requestData.Body.IsDataTruncated = true;
-                }
-                if (responseData?.Body?.Data?.Length > MaxBodyContentLength)
-                {
-                    responseData.Body.Data = responseData.Body.Data.Substring(0, MaxBodyContentLength);
-                    responseData.Body.IsDataTruncated = true;
-                }
-                
                 //use persister to index item
                 await LogItemPersister.StoreLogItemAsync(logItem, index);                
 
@@ -181,6 +117,125 @@ namespace Sushi.WebserviceLogger.Core
                     throw;
                 return logItem;
             }
+        }
+
+        /// <summary>
+        /// Add a single log item with request/response data into ElasticSearch.
+        /// </summary>
+        /// <returns></returns>
+        public T AddLogItem(RequestData requestData, ResponseData responseData, ContextType contextType)
+        {
+            T logItem = null;
+            try
+            {
+                //validate configuration
+
+                //create log item
+                logItem = CreateLogItem(requestData, responseData, contextType);
+
+                //set index name
+                string index = null;
+                if (IndexNameCallback != null)
+                    index = IndexNameCallback(logItem.Start.Value);
+                if (string.IsNullOrWhiteSpace(index))
+                    index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
+
+                //use persister to index item
+                LogItemPersister.StoreLogItem(logItem, index);
+
+                return logItem;
+            }
+            catch (Exception ex)
+            {
+                if (HandleException(ex, logItem))
+                    throw;
+                return logItem;
+            }
+        }
+
+        /// <summary>
+        /// Creates a log item with the provided data.
+        /// </summary>
+        /// <returns></returns>
+        private T CreateLogItem(RequestData requestData, ResponseData responseData, ContextType contextType)
+        {
+            T logItem = null;
+
+            //validate input
+            if (requestData == null)
+                throw new ArgumentNullException(nameof(requestData));
+            if (responseData == null)
+                throw new ArgumentNullException(nameof(responseData));
+
+            //create log item
+            logItem = new T()
+            {
+                ClientIP = requestData.ClientIP,
+                ContextType = contextType,
+                Created = DateTime.UtcNow,
+                Id = Guid.NewGuid().ToString(),
+                Request = new Request()
+                {
+                    Url = requestData.Url,
+                    Method = requestData.Method,
+                    Body = requestData.Body,
+                    Headers = requestData.Headers,
+                    SoapAction =requestData.SoapAction
+                },
+                Response = new Response()
+                {
+                    Body = responseData.Body,
+                    Headers = responseData.Headers,
+                    HttpStatusCode = responseData.HttpStatusCode
+                },
+                Start = requestData.Started,
+                End = responseData.Started,
+                Service = requestData.Url?.Address
+            };
+
+            //set duration if request and response dates are known
+            if (logItem.Start != null && logItem.End != null)
+                logItem.Duration = (int)(logItem.End - logItem.Start).GetValueOrDefault().TotalMilliseconds;
+
+            //set index name
+            string index = null;
+            if (IndexNameCallback != null)
+                index = IndexNameCallback(logItem.Start.Value);
+            if (string.IsNullOrWhiteSpace(index))
+                index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
+
+            //call delegate correlationID  if defined
+            if (CorrelationIdCallback != null)
+                logItem.CorrelationID = CorrelationIdCallback();
+
+            //call delegate logitem function if defined
+            if (AddLogItemCallback != null)
+            {
+                var callbacks = AddLogItemCallback.GetInvocationList();
+                foreach (var callback in callbacks)
+                {
+                    if (logItem != null)
+                        logItem = callback.DynamicInvoke(logItem) as T;
+                }
+            }
+            //logItem = AddLogItemCallback(logItem);
+
+            if (logItem == null)
+                return null;
+
+            //truncate log item body fields if too long
+            if (requestData?.Body?.Data?.Length > MaxBodyContentLength)
+            {
+                requestData.Body.Data = requestData.Body.Data.Substring(0, MaxBodyContentLength);
+                requestData.Body.IsDataTruncated = true;
+            }
+            if (responseData?.Body?.Data?.Length > MaxBodyContentLength)
+            {
+                responseData.Body.Data = responseData.Body.Data.Substring(0, MaxBodyContentLength);
+                responseData.Body.IsDataTruncated = true;
+            }
+
+            return logItem;
         }
 
         /// <summary>

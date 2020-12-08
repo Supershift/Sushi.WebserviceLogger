@@ -33,5 +33,10 @@ namespace Sushi.WebserviceLogger.Core
         /// Gets or sets an instance of <see cref="Body"/>, containing the content of the request.
         /// </summary>
         public Body Body { get; set; }
+
+        /// <summary>
+        /// Gets or sets the soap action if the request is part of a SOAP communication.
+        /// </summary>
+        public string SoapAction { get; set; }
     }
 }

@@ -21,12 +21,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>obj\Debug\Sushi.Elastic.WebserviceLogger.Core.xml</DocumentationFile>
+    <DocumentationFile>obj\Debug\Sushi.WebserviceLogger.Core.xml</DocumentationFile>
     <OutputPath>bin</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>obj\Release\Sushi.Elastic.WebserviceLogger.Core.xml</DocumentationFile>
+    <DocumentationFile>obj\Release\Sushi.WebserviceLogger.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

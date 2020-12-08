@@ -23,12 +23,16 @@ namespace Sushi.WebserviceLogger.Persisters
 
         public Task StoreLogItemAsync<T>(T logItem, string index) where T : LogItem
         {
+            StoreLogItem(logItem, index);
+            return Task.CompletedTask;
+        }
+
+        public void StoreLogItem<T>(T logItem, string index) where T : LogItem
+        {
             if (logItem == null)
             {
                 throw new ArgumentNullException(nameof(logItem));
             }
-            
-            
 
             //create new operation for bulk insertion            
             var operation = new Nest.BulkIndexOperation<T>(logItem);
@@ -44,8 +48,7 @@ namespace Sushi.WebserviceLogger.Persisters
                 var elasticClient = ElasticClientFactory.CreateClient(Configuration);
                 await ElasticUtility.CreateIndexIfNotExistsAsync<T>(elasticClient, index);
             };
-            operations.Enqueue(queueItem);
-            return Task.CompletedTask;
+            operations.Enqueue(queueItem);            
         }
 
         public QueuedItem Dequeue()
@@ -61,72 +64,5 @@ namespace Sushi.WebserviceLogger.Persisters
         public Func<Task> CheckIfIndexExistsDelegate { get; set; }
     }
 
-    //https://docs.microsoft.com/th-th/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-2.1&tabs=visual-studio
-    public class QueueProcessorHostedService : BackgroundService
-    {
-        public QueueProcessorHostedService(QueuePersister persister)
-        {
-            Persister = persister;            
-        }
-
-        public int MaxBulkSize { get; set; } = 100;
-        public int WaitTime { get; set; } = 1000;
-        public QueuePersister Persister { get; set; }
-        
-        public int MaxBatchSize { get; set; }
-        protected async override Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            int processedItems = 0;
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    processedItems = await ProcessQueueAsync();
-                    if (processedItems == 0)
-                        await Task.Delay(WaitTime);
-                }
-                catch
-                {
-                    //todo: some sort of callback to allow clients to log transactions?
-                }
-            }
-            
-            do
-            {
-                //get remaining items and save
-                processedItems = await ProcessQueueAsync();
-            }
-            while(processedItems > 0);
-        }
-
-        public async Task<int> ProcessQueueAsync()
-        {
-            var bulkDescriptor = new Nest.BulkDescriptor();            
-            
-            int itemCount = 0;
-            for (int i = 0; i < MaxBulkSize; i++)
-            {
-                //get item from queue                
-                var item = Persister.Dequeue();
-
-                if (item != null)
-                {
-                    //check if we need to create the index
-                    if (item.CheckIfIndexExistsDelegate != null)
-                        await item.CheckIfIndexExistsDelegate();
-                    //add operation to bulk operation
-                    bulkDescriptor.AddOperation(item.Operation);                    
-                    itemCount++;
-                }
-                else
-                    break;
-            }
-            if (itemCount > 0)
-            {
-                var client = Core.ElasticClientFactory.CreateClient(Persister.Configuration);
-                var result = await client.BulkAsync(bulkDescriptor);
-            }
-            return itemCount;
-        }
-    }
+    
 }
