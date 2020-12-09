@@ -9,20 +9,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>ad35b175-4875-46f2-b84c-73e9a2e635f6</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="secrets.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="secrets.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

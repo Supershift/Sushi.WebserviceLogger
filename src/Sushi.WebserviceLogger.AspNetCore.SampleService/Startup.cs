@@ -32,20 +32,12 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            //open secrets file
-            using (var fs = File.OpenRead("secrets.json"))
-            using (var sr = new StreamReader(fs))
-            {
-                //read and deserialize secrets file
-                var fileData = sr.ReadToEnd();
-                var secrets = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(fileData);
-
-                //apply settings
-                string elasticUrl = secrets["elasticUrl"];
-                string elasticUsername = secrets["elasticUsername"];
-                string elasticPassword = secrets["elasticPassword"];
-                ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUsername, elasticPassword);                
-            }
+            //apply settings
+            string elasticUrl = Configuration["elasticUrl"];
+            string elasticUsername = Configuration["elasticUsername"];
+            string elasticPassword = Configuration["elasticPassword"];
+            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUsername, elasticPassword);                
+            
 
             //create DI for queuepersister
             services.AddSingleton(s=> new QueuePersister(ElasticConfig));

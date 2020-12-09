@@ -42,11 +42,11 @@ namespace Sushi.WebserviceLogger.Persisters
                 Operation = operation
             };
             //checking of index needs to be done through a delegate, because NEST currently does not support a non-generic way of putting(updating) an index mapping            
-            queueItem.CheckIfIndexExistsDelegate = async () =>
+            queueItem.CheckIfIndexExistsDelegate = () =>
             {
                 //create elastic client            
                 var elasticClient = ElasticClientFactory.CreateClient(Configuration);
-                await ElasticUtility.CreateIndexIfNotExistsAsync<T>(elasticClient, index);
+                ElasticUtility.CreateIndexIfNotExists<T>(elasticClient, index);
             };
             operations.Enqueue(queueItem);            
         }
@@ -61,7 +61,7 @@ namespace Sushi.WebserviceLogger.Persisters
     public class QueuedItem
     {
         public Nest.IBulkOperation Operation { get; set; }        
-        public Func<Task> CheckIfIndexExistsDelegate { get; set; }
+        public Action CheckIfIndexExistsDelegate { get; set; }
     }
 
     

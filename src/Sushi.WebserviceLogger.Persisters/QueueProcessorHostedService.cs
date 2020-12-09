@@ -59,8 +59,7 @@ namespace Sushi.WebserviceLogger.Persisters
                 if (item != null)
                 {
                     //check if we need to create the index
-                    if (item.CheckIfIndexExistsDelegate != null)
-                        await item.CheckIfIndexExistsDelegate();
+                    item.CheckIfIndexExistsDelegate?.Invoke();
                     //add operation to bulk operation
                     bulkDescriptor.AddOperation(item.Operation);
                     itemCount++;
