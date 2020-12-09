@@ -1,60 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{401B1BAB-AEB5-4D5E-ABEB-9121770A3740}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sushi.WebserviceLogger.Asmx</RootNamespace>
-    <AssemblyName>Sushi.WebserviceLogger.Asmx</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <TargetFramework>net471</TargetFramework>
+	  <Version>0.9.0-rc1</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Mark de Vries</Authors>
+    <Company>Supershift B.V.</Company>
+    <Description>Core package to insert webservice logs into ElasticSearch.</Description>
+    <Copyright>2020 Supershift B.V.</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>obj\Debug\Sushi.WebserviceLogger.Asmx.xml</DocumentationFile>
+    <OutputPath>bin</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>obj\Release\Sushi.WebserviceLogger.Asmx.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <ProjectReference Include="..\Sushi.WebserviceLogger.Core\Sushi.WebserviceLogger.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerTracer.cs" />
-    <Compile Include="ServerTracerExtensionAttribute.cs" />
-    <Compile Include="Utility.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Sushi.WebserviceLogger.Core\Sushi.WebserviceLogger.Core.csproj">
-      <Project>{99627baf-1007-41fa-8755-6793648f35e2}</Project>
-      <Name>Sushi.WebserviceLogger.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
