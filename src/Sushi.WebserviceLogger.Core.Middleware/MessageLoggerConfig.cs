@@ -5,13 +5,24 @@ using System.Text;
 
 namespace Sushi.WebserviceLogger.Core.Middleware
 {
+    /// <summary>
+    /// Represents the configuration used to create a <see cref="Logger"/> by the <see cref="MessageLogger{T}"/> middleware.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MessageLoggerConfig<T> where T : LogItem
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
+        /// </summary>
+        /// <param name="config"></param>
         public MessageLoggerConfig(ElasticConfiguration config)
         {
             Persister = new InProcessPersister(config);
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
+        /// </summary>
         public MessageLoggerConfig(ILogItemPersister persister)
         {
             Persister = persister;
@@ -51,6 +62,9 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         /// </summary>
         public Func<HttpContext, string> CorrelationIdCallback { get; set; }
 
+        /// <summary>
+        /// Gets or sets the persister used to store logitems by the <see cref="Logger"/>.
+        /// </summary>
         public ILogItemPersister Persister { get; private set; }
     }
 }

@@ -14,6 +14,11 @@ namespace Sushi.WebserviceLogger.Core
     /// </summary>    
     public class MessageHandler : MessageHandler<LogItem>
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageHandler"/>.
+        /// </summary>
+        /// <param name="contextType"></param>
+        /// <param name="logger"></param>
         public MessageHandler(ContextType contextType, Logger<LogItem> logger) : base(contextType, logger)
         {
         }
@@ -62,8 +67,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log requests made to Web API controllers.        
         /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
+        /// </summary>        
         /// <returns></returns>
         public static MessageHandler<T> CreateWebApiMessageHandler<T>(Logger<T> logger) where T : LogItem, new()
         {
@@ -82,8 +86,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Create an instance of <see cref="MessageHandler{T}"/>.
         /// </summary>
-        /// <param name="contextType"></param>
-        /// <param name="configuration"></param>
+        /// <param name="contextType"></param>        
         /// <param name="logger"></param>
         public MessageHandler(ContextType contextType, Logger<T> logger)
         {

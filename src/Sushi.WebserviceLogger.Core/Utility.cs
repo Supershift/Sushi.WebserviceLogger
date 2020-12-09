@@ -127,8 +127,7 @@ namespace Sushi.WebserviceLogger.Core
 
         /// <summary>
         /// Creates an instance of <see cref="Url"/> from a string representing a URL.
-        /// </summary>
-        /// <param name="uri"></param>
+        /// </summary>        
         /// <returns></returns>
         public static Url GetUrlFromString(string url)
         {

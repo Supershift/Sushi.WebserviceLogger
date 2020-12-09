@@ -32,16 +32,16 @@ namespace Sushi.WebserviceLogger.SampleService
             config.MessageHandlers.Add(handler);
 
             //create asmx persister and logger
-            var persister = new InProcessPersister(loggingConfig);
-            //var persister = new QueuePersister(loggingConfig);
+            //var persister = new InProcessPersister(loggingConfig);
+            var persister = new QueuePersister(loggingConfig);
             Config.AsmxLogger = new Logger<LogItem>(persister)
             {
                 IndexNameCallback = (dt) => $"asmxlogs_{dt:yyyy-MM}"
             };
 
             //create a background worker to store queued logitems into elastic
-            //var backgroundworker = new QueueProcessor(persister);
-            //Task.Factory.StartNew(() => backgroundworker.Execute(Global.CancellationTokenSource.Token), TaskCreationOptions.LongRunning);
+            var backgroundworker = new QueueProcessor(persister);
+            backgroundworker.Start(Global.CancellationTokenSource.Token);
         }
     }
 }

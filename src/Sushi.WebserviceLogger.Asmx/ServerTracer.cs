@@ -1,6 +1,7 @@
 ﻿using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,25 +9,47 @@ using System.Web.Services.Protocols;
 
 namespace Sushi.WebserviceLogger.Asmx
 {
+    /// <summary>
+    /// Base class from which to derive a <see cref="SoapExtension"/> to log ASMX Soap traffic.
+    /// The derived class cannot be generic.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class ServerTracer<T> : SoapExtension where T: LogItem, new()
     {
-
+        /// <summary>
+        /// Is called one time if the tracer is applied using web.config.
+        /// </summary>
+        /// <param name="serviceType"></param>
+        /// <returns></returns>
         public override object GetInitializer(Type serviceType)
         {
             return null;
         }
 
+        /// <summary>
+        /// Is called one time if the tracer is applied to a specific method with a <see cref="SoapExtensionAttribute"/>.
+        /// </summary>
+        /// <param name="methodInfo"></param>
+        /// <param name="attribute"></param>
+        /// <returns></returns>
         public override object GetInitializer(LogicalMethodInfo methodInfo, SoapExtensionAttribute attribute)
         {
             return null;
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="Logger{T}"/> used to create logitems. It is advised to set this once in the overridden <see cref="SoapExtension.Initialize(object)"/> method.
+        /// </summary>
         public abstract Logger<T> Logger { get; set; }
 
         private System.IO.Stream SoapStream;
 
         private RequestData RequestData { get; set; }
 
+        /// <summary>
+        /// Is called for each <see cref="SoapMessageStage"/> to retrieve the data needed to create a <see cref="LogItem"/>.
+        /// </summary>
+        /// <param name="message"></param>
         public override void ProcessMessage(SoapMessage message)
         {   
             switch (message.Stage)
@@ -47,7 +70,7 @@ namespace Sushi.WebserviceLogger.Asmx
             }
         }
 
-        protected void ProcessIncomingMessage(SoapMessage message)
+        private void ProcessIncomingMessage(SoapMessage message)
         {
             try
             {
@@ -71,7 +94,7 @@ namespace Sushi.WebserviceLogger.Asmx
             }
         }
 
-        protected void ProcessOutgoingMessage(System.Web.Services.Protocols.SoapMessage message)
+        private void ProcessOutgoingMessage(System.Web.Services.Protocols.SoapMessage message)
         {
             try
             {
@@ -98,12 +121,16 @@ namespace Sushi.WebserviceLogger.Asmx
             }
         }
 
-        //allows us to hook into the ingoing/outgoing stream
-        public override System.IO.Stream ChainStream(System.IO.Stream stream)
+        /// <summary>
+        /// Buffers the provided soap data in a <see cref="MemoryStream"/>.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        public override Stream ChainStream(Stream stream)
         {
             SoapStream = stream;
             //replace the existing stream with a memory stream that will be filled with the request
-            var newStream = new System.IO.MemoryStream();
+            var newStream = new MemoryStream();
             return base.ChainStream(newStream);
         }
     }
