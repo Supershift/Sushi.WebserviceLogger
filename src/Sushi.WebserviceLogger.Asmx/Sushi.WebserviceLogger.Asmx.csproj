@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
-	  <Version>0.9.0-rc1</Version>
+	  <Version>0.9.0</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Mark de Vries</Authors>
     <Company>Supershift B.V.</Company>
-    <Description>Core package to insert webservice logs into ElasticSearch.</Description>
+    <Description>Enables logging of ASMX server side traffic.</Description>
     <Copyright>2020 Supershift B.V.</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
