@@ -30,4 +30,4 @@ See the individual documentation for each package for more detailed instructions
 * Sushi.WebserviceLogger.Core.Middleware
   * Provides middleware to log incoming calls to ASP.NET Core
 * Sushi.WebserviceLogger.Asmx
-  * Provides a SoapExtension to log incomming SOAP calls to ASP.NET ASMX webservices
+  * Provides a SoapExtension to log incoming SOAP calls to ASP.NET ASMX webservices
