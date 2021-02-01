@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientTest.cs" />
+    <Compile Include="ElasticTest.cs" />
     <Compile Include="Initialization.cs" />
     <Compile Include="LoggerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

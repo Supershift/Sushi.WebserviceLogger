@@ -18,6 +18,8 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Supershift/Sushi.WebserviceLogger</RepositoryUrl>
+    <RepositoryType>git</RepositoryType> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

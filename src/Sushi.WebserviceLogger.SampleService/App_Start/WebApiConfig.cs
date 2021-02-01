@@ -33,7 +33,7 @@ namespace Sushi.WebserviceLogger.SampleService
 
             //create asmx persister and logger
             //var persister = new InProcessPersister(loggingConfig);
-            var persister = new QueuePersister(loggingConfig);
+            var persister = new QueuePersister(loggingConfig);            
             Config.AsmxLogger = new Logger<LogItem>(persister)
             {
                 IndexNameCallback = (dt) => $"asmxlogs_{dt:yyyy-MM}"
