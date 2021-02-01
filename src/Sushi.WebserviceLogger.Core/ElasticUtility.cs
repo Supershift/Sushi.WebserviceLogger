@@ -22,10 +22,10 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="indexName"></param>
         /// <param name="useCache"></param>
         /// <returns></returns>
-        public static async Task<bool> CreateIndexIfNotExistsAsync<T>(ElasticClient client, string indexName, bool useCache = true) where T : class
+        public static async Task<bool> CreateIndexIfNotExistsAsync<T>(ElasticClient client, string indexName) where T : class
         {
             bool result = false;
-            if (!useCache || !IndexCache.ContainsKey(indexName))
+            if (!IndexCache.ContainsKey(indexName))
             {
                 //create index if not exists, otherwise update mapping
                 var indexExists = await client.Indices.ExistsAsync(indexName);
@@ -34,13 +34,13 @@ namespace Sushi.WebserviceLogger.Core
                 if (!indexExists.Exists)
                 {
                     // use double check so only 1 thread can create it
-                    await CreateLock.WaitAsync();
+                    await CreateLock.WaitAsync().ConfigureAwait(false);
                     try
                     {
                         indexExists = await client.Indices.ExistsAsync(indexName);
                         if (!indexExists.Exists)
                         {
-                            var createResponse = await client.Indices.CreateAsync(indexName, c => c.Map<T>(p => p.AutoMap().Dynamic(dynamicMapping)));
+                            var createResponse = await client.Indices.CreateAsync(indexName, c => c.Map<T>(p => p.AutoMap().Dynamic(dynamicMapping))).ConfigureAwait(false);
                             if (!createResponse.IsValid)
                                 throw new Exception("Failed to create index " + indexName);
                             result = true;
@@ -54,7 +54,7 @@ namespace Sushi.WebserviceLogger.Core
                 else
                 {
                     //update index mapping
-                    await client.Indices.PutMappingAsync<T>(p => p.AutoMap().Index(indexName).Dynamic(dynamicMapping));
+                    await client.Indices.PutMappingAsync<T>(p => p.AutoMap().Index(indexName).Dynamic(dynamicMapping)).ConfigureAwait(false);
                 }
                 IndexCache.TryAdd(indexName, new object());
             }
@@ -69,10 +69,10 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="indexName"></param>
         /// <param name="useCache"></param>
         /// <returns></returns>
-        public static bool CreateIndexIfNotExists<T>(ElasticClient client, string indexName, bool useCache = true) where T : class
+        public static bool CreateIndexIfNotExists<T>(ElasticClient client, string indexName) where T : class
         {
             bool result = false;
-            if (!useCache || !IndexCache.ContainsKey(indexName))
+            if (!IndexCache.ContainsKey(indexName))
             {
                 //create index if not exists, otherwise update mapping
                 var indexExists = client.Indices.Exists(indexName);
