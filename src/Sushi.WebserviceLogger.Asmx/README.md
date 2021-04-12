@@ -4,15 +4,23 @@
 ## Features
 Provides a SoapExtension to log incoming SOAP calls to ASP.NET ASMX webservices.
 ## Quick start
-Create an instance of Logger at the startup of your application, for instance in Global.asax.
+Create an instance of Logger at the startup of your application, for instance in Global.asax. 
 ```csharp
 var elasticConfig = new Core.ElasticConfiguration("elasticUrl", "elasticUsername", "elasticPassword");
 var persister = new InProcessPersister(elasticConfig);
 // make this instance accessible to other threads
 var logger = new Logger<LogItem>(persister)
 {
-    IndexNameCallback = (dt) => $"asmxlogs_{dt:yyyy-MM}"
+    IndexNameCallback = (dt) => $"webservicelogs_{dt:yyyy-MM}"
 };
+Config.AsmxLogger = logger;
+```
+The instance will be used later by your implementation of ServerTracer, so make sure it is available somewhere. One way is to assign the instance to a publicly available static property:
+```csharp
+public static class Config
+{
+    public static Logger<LogItem> AsmxLogger { get; set; }
+}
 ```
 Create an implementation of the abstract class ServerTracer<T>. The implementation cannot be a generic class. The implementation will provide:
 * The type to use as logging object (default is LogItem)
