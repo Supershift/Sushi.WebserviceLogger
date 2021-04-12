@@ -24,7 +24,22 @@ using (var response = await Client.GetAsync("https://www.github.com"))
 
 // your outgoing call and the response are now logged in Elastic
 ```
-
+## Error handling
+You can specify a delegate which will be called if an exception occurs during logging. This allows you to log the exception and take further action. The delegate needs to return a boolean, indicating if the exception needs to be thrown (true) or if the exception was handled (false).
+```csharp
+public bool ExceptionCallback(Exception exception, LogItem logItem)
+{
+    // log the exception
+    Console.WriteLine(exception);
+	
+    // do not throw the exception
+    return false;
+}
+```
+Add the callback to your logger instance:
+```csharp
+logger.ExceptionCallback += ExceptionCallback;
+```
 ## Additional resources
 See the individual documentation for each package for more detailed instructions.
 * Sushi.WebserviceLogger.Core.Middleware
