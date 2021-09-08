@@ -33,12 +33,11 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             //apply settings
-            string elasticUrl = Configuration["elasticUrl"];
-            string elasticUsername = Configuration["elasticUsername"];
-            string elasticPassword = Configuration["elasticPassword"];
-            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUsername, elasticPassword);                
+            string elasticUrl = Configuration["ElasticUrl"];
+            string elasticUsername = Configuration["ElasticUsername"];
+            string elasticPassword = Configuration["ElasticPassword"];
+            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUsername, elasticPassword);          
             
-
             //create DI for queuepersister
             services.AddSingleton(s=> new QueuePersister(ElasticConfig));
             //register a background worker to write from queue to elastic
@@ -61,7 +60,7 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
             
             app.UseHttpsRedirection();            
 
-            //register message logger middleware
+            //register message logger middleware            
             var middlewareConfig = new MessageLoggerConfig<MyLogItem>(persister);
             middlewareConfig.AddLogItemCallback += (MyLogItem logItem, HttpContext context) =>
             {
@@ -74,6 +73,11 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
             //app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>(loggingConfig));
 
             app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger(middlewareConfig));
+
+
+            var mockPersister = new MockPersister();
+            var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>(mockPersister);            
+            app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
 
             //registere MVC middleware (executes Web API)
             app.UseMvc();

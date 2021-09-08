@@ -145,6 +145,7 @@ namespace Sushi.WebserviceLogger.Test
             var logger = new Logger<MyLogItem>(Initialization.Config);
             logger.AddLogItemCallback += Block;
             logger.AddLogItemCallback += MyDelegate;
+            logger.ExceptionCallback += ExceptionCallback;
             
             var requestData = new Core.RequestData()
             {
@@ -185,6 +186,15 @@ namespace Sushi.WebserviceLogger.Test
         public MyLogItem Block(MyLogItem logItem)
         {
             return null;
+        }
+
+        public bool ExceptionCallback(Exception exception, MyLogItem logItem)
+        {
+            // log the exception
+            Console.WriteLine(exception);
+            
+            // do not throw the exception
+            return false;
         }
     }
 }
