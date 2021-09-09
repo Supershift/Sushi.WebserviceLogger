@@ -8,59 +8,28 @@ using Microsoft.AspNetCore.Mvc;
 namespace Sushi.WebserviceLogger.SampleService.Controllers
 {   
     [ApiController]
+    [Route("api/")]
+    [Route("mock/")]
+    [Route("none/")]
     public class SampleController : ControllerBase
     {
         [HttpGet]
-        [Route("api/ping")]
-        [Route("mock/ping")]
+        [Route("ping")]        
         public ActionResult Ping()
         {
             return Ok();
         }
 
-        [HttpGet]
-        [Route("api/echo/{input}")]
-        [Route("mock/echo/{input}")]
-        public ActionResult Echo(string input)
-        {
-            return Ok(input);
-        }
-
         /// <summary>
-        /// Sends a response after the specified delay, with a max time of 60 seconds. Delay time is specified in milliseconds.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("api/delay")]
-        [Route("mock/delay")]
-        public async Task<ActionResult> Echo(int input)
-        {
-            if(input > 0)
-            {
-                int delayTime = Math.Min(input, 60000);
-                await Task.Delay(delayTime);
-            }
-            return Ok(input);
-        }
-
-        public class MyPayload
-        {
-            public string Data { get; set; }
-        }
-
-        /// <summary>
-        /// Sends a response after the specified delay, with a max time of 60 seconds. Delay time is specified in milliseconds. Response is an echo of request
+        /// Echo's the request after the specified delay, with a max time of 60 seconds. Delay time is specified in milliseconds.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("api/random")]
-        [Route("mock/random")]
-        [Route("none/random")]
-        public async Task<ActionResult> Random([FromQuery]int input, [FromBody] MyPayload request)
+        [Route("echo")]        
+        public async Task<ActionResult> Echo(MyPayload request, [FromQuery]int input = 0)
         {
-            if (input > 0)
+            if(input > 0)
             {
                 int delayTime = Math.Min(input, 60000);
                 await Task.Delay(delayTime);
@@ -68,9 +37,15 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
             return Ok(request);
         }
 
+        public class MyPayload
+        {
+            public string Data { get; set; }
+        }
+
+        
+
         [HttpGet]
-        [Route("api/order")]
-        [Route("mock/order")]
+        [Route("order")]        
         public ActionResult<OrderResponse> GetOrder(Guid orderID)
         {
             if (orderID == Guid.Empty)
@@ -94,8 +69,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         }
 
         [HttpPost]
-        [Route("api/order")]
-        [Route("mock/order")]
+        [Route("order")]        
         public ActionResult<OrderResponse> AddOrder(OrderRequest request)
         {
             if (request == null || request.Quantity < 0)
