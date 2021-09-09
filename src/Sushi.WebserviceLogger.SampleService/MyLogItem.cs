@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Sushi.WebserviceLogger.AspNetCore.SampleService
+namespace Sushi.WebserviceLogger.SampleService
 {
     public class MyLogItem : LogItem
     {

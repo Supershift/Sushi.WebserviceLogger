@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Sushi.WebserviceLogger.AspNetCore.SampleService
+namespace Sushi.WebserviceLogger.SampleService
 {
     public class Program
     {

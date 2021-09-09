@@ -16,7 +16,7 @@ using Sushi.WebserviceLogger.Core;
 using Sushi.WebserviceLogger.Core.Middleware;
 using Sushi.WebserviceLogger.Persisters;
 
-namespace Sushi.WebserviceLogger.AspNetCore.SampleService
+namespace Sushi.WebserviceLogger.SampleService
 {
     public class Startup
     {

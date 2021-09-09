@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Core
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Core.Middleware", "Sushi.WebserviceLogger.Core.Middleware\Sushi.WebserviceLogger.Core.Middleware.csproj", "{7F969B65-0C7C-44F0-9D97-7B7799A143CE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.SampleService", "Sushi.WebserviceLogger.AspNetCore.SampleService\Sushi.WebserviceLogger.SampleService.csproj", "{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.SampleService", "Sushi.WebserviceLogger.SampleService\Sushi.WebserviceLogger.SampleService.csproj", "{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Persisters", "Sushi.WebserviceLogger.Persisters\Sushi.WebserviceLogger.Persisters.csproj", "{49666E26-030E-4775-932F-40D6C75523E3}"
 EndProject
