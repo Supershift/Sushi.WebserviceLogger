@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -15,14 +16,21 @@ namespace Sushi.WebserviceLogger.Test
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext context)
         {
-            
-                //apply settings
-                string elasticUrl = ConfigurationManager.AppSettings["elasticUrl"];
-                string elasticUser = ConfigurationManager.AppSettings["elasticUsername"];
-                string elasticPassword = ConfigurationManager.AppSettings["elasticPassword"];
-                Config = new Core.ElasticConfiguration(elasticUrl, elasticUser, elasticPassword);
-            
-            
+
+            var config = new ConfigurationBuilder()
+            .SetBasePath(context.TestDir)
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly(), optional: true)
+            .Build();
+
+
+            //apply settings
+            string elasticUrl = config["elasticUrl"];
+            string elasticUser = config["elasticUsername"];
+            string elasticPassword = config["elasticPassword"];
+            Config = new Core.ElasticConfiguration(elasticUrl, elasticUser, elasticPassword);
+
+
         }
 
         public static Core.ElasticConfiguration Config { get; private set; }

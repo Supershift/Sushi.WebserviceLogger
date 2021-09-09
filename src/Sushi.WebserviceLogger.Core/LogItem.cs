@@ -137,6 +137,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets the soap action if the request is part of a SOAP communication.
         /// </summary>
+        [Keyword]
         public string SoapAction { get; set; }
     }
 
@@ -172,6 +173,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets the data in the body.
         /// </summary>
+        [Text]
         public string Data { get; set; }
 
         /// <summary>
@@ -195,11 +197,11 @@ namespace Sushi.WebserviceLogger.Core
         public string Path { get; set; }
         /// <summary>
         /// Gets or sets the address, which is the combination of scheme, authority and path, e.g. https://www.contoso.com/api/product.
-        /// </summary>
+        /// </summary>        
         public string Address { get; set; }
         /// <summary>
         /// Gets or sets the host of the url, e.g. www.contoso.com
-        /// </summary>
+        /// </summary>        
         public string Host { get; set; }
         /// <summary>
         /// Gets or sets the scheme of the url, e.g. http, https, etc.
