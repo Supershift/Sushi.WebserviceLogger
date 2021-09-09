@@ -58,7 +58,8 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
                 app.UseHsts();
             }
             
-            app.UseHttpsRedirection();            
+            app.UseHttpsRedirection();
+            app.UseRouting();
 
             //register message logger middleware            
             var middlewareConfig = new MessageLoggerConfig<MyLogItem>(persister);
@@ -80,7 +81,10 @@ namespace Sushi.WebserviceLogger.AspNetCore.SampleService
             app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
 
             //registere MVC middleware (executes Web API)
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
