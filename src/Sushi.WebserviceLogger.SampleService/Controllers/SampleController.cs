@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Sushi.WebserviceLogger.AspNetCore.SampleService.Controllers
+namespace Sushi.WebserviceLogger.SampleService.Controllers
 {   
     [ApiController]
     public class SampleController : ControllerBase

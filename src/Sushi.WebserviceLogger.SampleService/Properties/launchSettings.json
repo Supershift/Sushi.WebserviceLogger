@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "https://localhost/Sushi.Elastic.WebserviceLogger.AspNetCore.SampleService",
+      "applicationUrl": "https://localhost/Sushi.Elastic.WebserviceLogger.SampleService",
       "sslPort": 0
     },
     "iisExpress": {
@@ -20,7 +20,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Sushi.Elastic.WebserviceLogger.AspNetCore.SampleService": {
+    "Sushi.Elastic.WebserviceLogger.SampleService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/values",
@@ -31,7 +31,7 @@
     },
     "IIS": {
       "commandName": "IIS",
-      "launchUrl": "https://localhost/Sushi.Elastic.WebserviceLogger.AspNetCore.SampleService",
+      "launchUrl": "https://localhost/Sushi.Elastic.WebserviceLogger.SampleService",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "DEVELOPMENT"
       }
