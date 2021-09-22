@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Sushi.WebserviceLogger.Core;
 using Sushi.WebserviceLogger.Core.Middleware;
+using Sushi.WebserviceLogger.Filter;
 using Sushi.WebserviceLogger.Persisters;
 
 namespace Sushi.WebserviceLogger.SampleService
@@ -43,7 +44,11 @@ namespace Sushi.WebserviceLogger.SampleService
             //create DI for queuepersister
             services.AddSingleton(s=> new QueuePersister(ElasticConfig));
             //register a background worker to write from queue to elastic
-            services.AddHostedService<QueueProcessorHostedService>();            
+            services.AddHostedService<QueueProcessorHostedService>();
+
+            services.AddScoped<MessageLoggerFilter<MyLogItem>>();
+            var config = new MessageLoggerFilterConfiguration<MyLogItem>();
+            services.AddSingleton(config);
         }
 
         private ElasticConfiguration ElasticConfig { get; set; }

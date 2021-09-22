@@ -22,7 +22,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         {
             _next = next;
             Config = config;
-            ContextType = ContextType.Server;
+            ContextType = ContextType.Server;            
         }
 
         /// <summary>
