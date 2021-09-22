@@ -30,7 +30,11 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var logger = new Core.Logger(Initialization.Config);
+            var logger = new Core.Logger(Initialization.Config)
+            {
+                IndexNameCallback = () => "webservicelogs-test"
+            };
+
             var requestData = new Core.RequestData()
             {
                 Body = new Core.Body()

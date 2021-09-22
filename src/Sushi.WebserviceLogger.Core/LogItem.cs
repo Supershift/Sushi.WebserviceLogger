@@ -13,8 +13,16 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets a value uniquely identifying an instance of <see cref="LogItem"/>.
         /// </summary>
-        [Keyword]
         public string Id { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets a value indicating when this <see cref="LogItem"/> was created.
+        /// </summary>
+        [Nest.Date(Name = "@timestamp")]
+        public DateTime Timestamp { get; set; }
+
+        [Obsolete("Use Timestamp instead")]
         /// <summary>
         /// Gets or sets a value indicating when this <see cref="LogItem"/> was created.
         /// </summary>
@@ -38,14 +46,12 @@ namespace Sushi.WebserviceLogger.Core
 
         /// <summary>
         /// Gets or sets the <see cref="ContextType"/> that this <see cref="LogItem"/> was created. 
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public ContextType ContextType { get; set; }
         
         /// <summary>
         /// Gets or sets the IP address of the client for this webservice call.
-        /// </summary>
-        [Ip]
+        /// </summary>        
         public string ClientIP { get; set; }
         /// <summary>
         /// Gets or sets the UserAgent of the client for this webservice call.
@@ -53,8 +59,7 @@ namespace Sushi.WebserviceLogger.Core
         public string ClientUserAgent { get; set; }
         /// <summary>
         /// Gets or sets the IP address of the server for this webservice call.
-        /// </summary> 
-        [Ip]
+        /// </summary>         
         public string ServerIP { get; set; }
         /// <summary>
         /// Gets or sets an object containing all request specific data.
@@ -68,8 +73,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets a value that allows you to link multiple logitems. 
         /// For instance, all logitems created during the execution of one web request can be linked together by assigning them the same ID.
-        /// </summary>   
-        [Keyword]
+        /// </summary>           
         public string CorrelationID { get; set; }
 
         /// <summary>
@@ -102,8 +106,7 @@ namespace Sushi.WebserviceLogger.Core
 
         /// <summary>
         /// Gets or sets the name of the header.
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public string Key { get; set; }
         /// <summary>
         /// Gets or sets the value of the header.
@@ -122,8 +125,7 @@ namespace Sushi.WebserviceLogger.Core
         public Url Url { get; set; }
         /// <summary>
         /// Gets or sets the HTTP method used to call <see cref="Request.Url"/>, e.g. GET, POST, etc.
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public string Method { get; set; }
         /// <summary>
         /// Gets or sets a collection of httpheaders sent in the request.
@@ -136,8 +138,7 @@ namespace Sushi.WebserviceLogger.Core
 
         /// <summary>
         /// Gets or sets the soap action if the request is part of a SOAP communication.
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public string SoapAction { get; set; }
     }
 
@@ -167,13 +168,11 @@ namespace Sushi.WebserviceLogger.Core
     {
         /// <summary>
         /// Gets or sets the <see cref="Core.ContentType"/> of the data in the body.
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public ContentType ContentType { get; set; }
         /// <summary>
         /// Gets or sets the data in the body.
-        /// </summary>
-        [Text]
+        /// </summary>        
         public string Data { get; set; }
 
         /// <summary>
@@ -205,8 +204,7 @@ namespace Sushi.WebserviceLogger.Core
         public string Host { get; set; }
         /// <summary>
         /// Gets or sets the scheme of the url, e.g. http, https, etc.
-        /// </summary>
-        [Keyword]
+        /// </summary>        
         public string Scheme { get; set; }
         /// <summary>
         /// Gets or sets the port of the url.
@@ -228,7 +226,7 @@ namespace Sushi.WebserviceLogger.Core
         /// </summary>
         Raw,
         /// <summary>
-        /// Form data used in requests (for example application/x-www-form-urlencoded
+        /// Form data used in requests (for example application/x-www-form-urlencoded)
         /// </summary>
         Form,
         /// <summary>

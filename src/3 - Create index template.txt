@@ -1,0 +1,23 @@
+﻿PUT _index_template/webservicelogs
+{
+  "priority": 90,
+  "template": {
+    "settings": {
+      "index": {
+        "lifecycle": {
+          "name": "webservicelogs"
+        }
+      }
+    }
+  },
+  "index_patterns": [
+    "webservicelogs-*"
+  ],
+  "data_stream": {
+    "hidden": false
+  },
+  "composed_of": [
+    "webservicelogs"
+    
+  ]
+}

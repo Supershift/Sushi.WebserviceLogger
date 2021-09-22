@@ -46,11 +46,11 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         public Func<Exception, T, HttpContext, bool> ExceptionCallback { get; set; }
 
         /// <summary>
-        /// Gets or sets a function that will be called to determine indexname. The datetime of the log item will be sent as parameter to the function. 
+        /// Gets or sets a function that will be called to determine indexname. 
         /// The return value will be used as index name. 
-        /// The default index name is 'webservicelogsYYYYmm', e.g. webservicelogs201910
+        /// The default index name is 'webservicelogs'
         /// </summary>
-        public Func<DateTime, string> IndexNameCallback { get; set; }
+        public Func<string> IndexNameCallback { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum alloweed length of <see cref="Body.Data"/>. Any characters above the limit will be truncated before inserting into ElasticSearch.        

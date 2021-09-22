@@ -27,10 +27,11 @@ namespace Sushi.WebserviceLogger.Test
                 {
                     Id = Guid.NewGuid().ToString(),
                     ProductID = Guid.NewGuid().ToString(),
-                    Created = DateTime.UtcNow                    
-               
+                    Created = DateTime.UtcNow,
+                    Timestamp = DateTime.UtcNow
+
                 };
-                await queuePersister.StoreLogItemAsync(myLogItem, "my-test-index");
+                await queuePersister.StoreLogItemAsync(myLogItem, "webservicelogs-test");
             }
             Console.WriteLine($"Adding to queue: {sw.Elapsed}");
 
