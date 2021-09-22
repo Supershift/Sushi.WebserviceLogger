@@ -36,30 +36,8 @@ namespace Sushi.WebserviceLogger.Core
             //create elastic client            
             var elasticClient = ElasticClientFactory.CreateClient(Configuration);
 
-            //create index with mapping if not exists                
-            await ElasticUtility.CreateIndexIfNotExistsAsync<T>(elasticClient, index);
-
             //index logItem                
-            var response = await elasticClient.IndexAsync(logItem, i => i.Index(index));
-        }
-
-        /// <summary>
-        /// Stores a <see cref="LogItem"/> in Elastic.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="logItem"></param>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public void StoreLogItem<T>(T logItem, string index) where T : LogItem
-        {
-            //create elastic client            
-            var elasticClient = ElasticClientFactory.CreateClient(Configuration);
-
-            //create index with mapping if not exists                
-            ElasticUtility.CreateIndexIfNotExists<T>(elasticClient, index);
-
-            //index logItem                
-            var response = elasticClient.Index(logItem, i => i.Index(index));
+            var response = await elasticClient.CreateAsync(logItem, i => i.Index(index));
         }
     }
 }

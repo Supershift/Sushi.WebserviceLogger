@@ -79,11 +79,11 @@ namespace Sushi.WebserviceLogger.Core
         public int MaxBodyContentLength { get; set; } = 4000;
 
         /// <summary>
-        /// Gets or sets a function that will be called to determine indexname. The datetime of the log item will be sent as parameter to the function. 
+        /// Gets or sets a function that will be called to determine indexname. 
         /// The return value will be used as index name. 
-        /// The default index name is 'webservicelogsYYYYmm', e.g. webservicelogs201910
+        /// The default index name is 'webservicelogs'
         /// </summary>
-        public Func<DateTime, string> IndexNameCallback { get; set; }
+        public Func<string> IndexNameCallback { get; set; }
 
         /// <summary>
         /// Add a single log item with request/response data into ElasticSearch.
@@ -102,7 +102,7 @@ namespace Sushi.WebserviceLogger.Core
                 //set index name
                 string index = null;
                 if (IndexNameCallback != null)
-                    index = IndexNameCallback(logItem.Start.Value);
+                    index = IndexNameCallback();
                 if (string.IsNullOrWhiteSpace(index))
                     index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 
@@ -119,39 +119,7 @@ namespace Sushi.WebserviceLogger.Core
             }
         }
 
-        /// <summary>
-        /// Add a single log item with request/response data into ElasticSearch.
-        /// </summary>
-        /// <returns></returns>
-        public T AddLogItem(RequestData requestData, ResponseData responseData, ContextType contextType)
-        {
-            T logItem = null;
-            try
-            {
-                //validate configuration
-
-                //create log item
-                logItem = CreateLogItem(requestData, responseData, contextType);
-
-                //set index name
-                string index = null;
-                if (IndexNameCallback != null)
-                    index = IndexNameCallback(logItem.Start.Value);
-                if (string.IsNullOrWhiteSpace(index))
-                    index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
-
-                //use persister to index item
-                LogItemPersister.StoreLogItem(logItem, index);
-
-                return logItem;
-            }
-            catch (Exception ex)
-            {
-                if (HandleException(ex, logItem))
-                    throw;
-                return logItem;
-            }
-        }
+        
 
         /// <summary>
         /// Creates a log item with the provided data.
@@ -173,6 +141,7 @@ namespace Sushi.WebserviceLogger.Core
                 ClientIP = requestData.ClientIP,
                 ContextType = contextType,
                 Created = DateTime.UtcNow,
+                Timestamp = DateTime.UtcNow,
                 Id = Guid.NewGuid().ToString(),
                 Request = new Request()
                 {
@@ -200,7 +169,7 @@ namespace Sushi.WebserviceLogger.Core
             //set index name
             string index = null;
             if (IndexNameCallback != null)
-                index = IndexNameCallback(logItem.Start.Value);
+                index = IndexNameCallback();
             if (string.IsNullOrWhiteSpace(index))
                 index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 

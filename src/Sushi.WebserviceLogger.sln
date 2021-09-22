@@ -11,7 +11,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Samp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Persisters", "Sushi.WebserviceLogger.Persisters\Sushi.WebserviceLogger.Persisters.csproj", "{49666E26-030E-4775-932F-40D6C75523E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.WebserviceLogger.Test", "Sushi.WebserviceLogger.Test\Sushi.WebserviceLogger.Test.csproj", "{D1C74989-2394-48E3-8957-C97C2671FB31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Test", "Sushi.WebserviceLogger.Test\Sushi.WebserviceLogger.Test.csproj", "{D1C74989-2394-48E3-8957-C97C2671FB31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ElasticScripts", "ElasticScripts", "{DF7F522D-0B76-4666-BA71-431D39A78C64}"
+	ProjectSection(SolutionItems) = preProject
+		1 - Create mapping template.txt = 1 - Create mapping template.txt
+		2 - Create lifecycle management.txt = 2 - Create lifecycle management.txt
+		3 - Create index template.txt = 3 - Create index template.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{59135A03-3E24-4C6C-8613-E322DB993B95}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

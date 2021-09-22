@@ -62,6 +62,7 @@ namespace Sushi.WebserviceLogger.SampleService
             
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseStaticFiles();            
 
             //register message logger middleware            
             var middlewareConfig = new MessageLoggerConfig<MyLogItem>(persister);
@@ -70,7 +71,7 @@ namespace Sushi.WebserviceLogger.SampleService
                 logItem.MyKeyword = "my value";
                 return logItem;
             };
-            middlewareConfig.IndexNameCallback = dt => "webservicelogs_test";
+            middlewareConfig.IndexNameCallback = () => "webservicelogs_test";
             //app.UseMiddleware<MessageLogger<LogItem>>(loggingConfig);
             //app.UseMessageLogger<LogItem>(loggingConfig);
             //app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>(loggingConfig));

@@ -1,0 +1,205 @@
+﻿#create basic webservice logging mapping
+PUT _component_template/webservicelogs
+{
+  "template": {
+    "mappings": {
+      "_routing": {
+        "required": false
+      },
+      "_source": {
+        "excludes": [],
+        "includes": [],
+        "enabled": true
+      },
+      "dynamic": false,
+      "dynamic_templates": [],
+      "properties": {
+        "request": {
+          "type": "object",
+          "properties": {
+            "headers": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "text"
+                },
+                "key": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "method": {
+              "type": "keyword"
+            },
+            "action": {
+              "eager_global_ordinals": false,
+              "norms": false,
+              "index": true,
+              "store": false,
+              "type": "keyword",
+              "index_options": "docs",
+              "split_queries_on_whitespace": false,
+              "doc_values": true
+            },
+            "body": {
+              "type": "object",
+              "properties": {
+                "isDataTruncated": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "text"
+                },
+                "contentType": {
+                  "eager_global_ordinals": false,
+                  "norms": false,
+                  "index": true,
+                  "store": false,
+                  "type": "keyword",
+                  "index_options": "docs",
+                  "split_queries_on_whitespace": false,
+                  "doc_values": true
+                }
+              }
+            },
+            "url": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "type": "keyword"
+                    }
+                  }
+                },
+                "address": {
+                  "type": "text"
+                },
+                "scheme": {
+                  "type": "keyword"
+                },
+                "port": {
+                  "type": "integer"
+                },
+                "absoluteUrl": {
+                  "type": "text"
+                },
+                "query": {
+                  "type": "text"
+                },
+                "host": {
+                  "type": "text",
+                  "fields": {
+                    "keyword": {
+                      "ignore_above": 256,
+                      "type": "keyword"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "clientUserAgent": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "ignore_above": 256,
+              "type": "keyword"
+            }
+          }
+        },
+        "created": {
+          "type": "date"
+        },
+        "start": {
+          "type": "date"
+        },
+        "duration": {
+          "type": "integer"
+        },
+        "result": {
+          "type": "integer"
+        },
+        "@timestamp": {
+          "type": "date"
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "headers": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "text"
+                },
+                "key": {
+                  "type": "keyword"
+                }
+              }
+            },
+            "body": {
+              "type": "object",
+              "properties": {
+                "isDataTruncated": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "text"
+                },
+                "contentType": {
+                  "type": "integer"
+                }
+              }
+            },
+            "httpStatusCode": {
+              "type": "integer"
+            }
+          }
+        },
+        "service": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "ignore_above": 256,
+              "type": "keyword"
+            }
+          }
+        },
+        "clientIP": {
+          "type": "ip"
+        },
+        "contextType": {
+          "eager_global_ordinals": false,
+          "norms": false,
+          "index": true,
+          "store": false,
+          "type": "keyword",
+          "index_options": "docs",
+          "split_queries_on_whitespace": false,
+          "doc_values": true
+        },
+        "serverIP": {
+          "type": "ip"
+        },
+        "correlationID": {
+          "eager_global_ordinals": false,
+          "norms": false,
+          "index": true,
+          "store": false,
+          "type": "keyword",
+          "index_options": "docs",
+          "split_queries_on_whitespace": false,
+          "doc_values": true
+        },
+        "end": {
+          "type": "date"
+        },
+        "id": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}

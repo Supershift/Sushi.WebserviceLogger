@@ -89,7 +89,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
 
             //we're going to replace the response's stream in a next step
             var originalResponseStream = response.Body;
-
+            
             try
             {
                 using (var responseBuffer = new System.IO.MemoryStream())
@@ -100,7 +100,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                         request.EnableBuffering();
                         //response does not allow this, so we have to create a custom buffer
                         //asp.net core 3.1 has a FileWriteBuffer, but core 2 does not, so we need to use a buffered stream (which just uses memory), which is not ideal for large responses
-                        response.Body = responseBuffer;
+                        response.Body = responseBuffer;                        
                     }
                     catch (Exception ex)
                     {

@@ -86,9 +86,7 @@ namespace Sushi.WebserviceLogger.Persisters
                 var item = Persister.Dequeue();
 
                 if (item != null)
-                {
-                    //check if we need to create the index
-                    item.CheckIfIndexExistsDelegate?.Invoke();
+                {   
                     //add operation to bulk operation
                     bulkDescriptor.AddOperation(item.Operation);
                     itemCount++;
