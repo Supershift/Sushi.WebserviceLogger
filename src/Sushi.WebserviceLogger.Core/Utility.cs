@@ -112,7 +112,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="request"></param>
         /// <param name="started"></param>
         /// <returns></returns>
-        public static async Task<RequestData> GetDataFromHttpRequestMessageAsync(HttpRequest request, DateTime started)
+        public static async Task<RequestData> GetDataFromHttpRequestMessageAsync(HttpRequest request, DateTime started, bool readBody)
         {
             var result = new RequestData()
             {
@@ -120,7 +120,7 @@ namespace Sushi.WebserviceLogger.Core
                 Method = request.Method,
                 Started = started
             };
-            //get headers from request
+            // get headers from request
             if (request.Headers != null)
             {
                 result.Headers = new List<Header>();
@@ -132,25 +132,25 @@ namespace Sushi.WebserviceLogger.Core
                     }
                 }
             }
-            //get body
-            if (request.Body != null && request.ContentLength > 0)
+            // get body
+            result.Body = new Body()
             {
-                //set stream back to position 0
+                ContentType = GuessContentTypeFromHeader(request.ContentType)
+            };
+
+            if (readBody && request.Body != null && request.Body.CanSeek && request.ContentLength > 0 )
+            {
+                // set stream back to position 0
                 request.Body.Position = 0;
 
                 using (var sr = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
                 {
-                    //get content
-                    result.Body = new Body()
-                    {
-                        Data = await sr.ReadToEndAsync()
-                    };
+                    // get content
+                    result.Body.Data = await sr.ReadToEndAsync();                    
                 }
 
-                //set stream back to position 0
+                // set stream back to position 0
                 request.Body.Position = 0;
-
-                result.Body.ContentType = Core.Utility.GuessContentTypeFromHeader(request.ContentType);
             }
 
             return result;
@@ -162,7 +162,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="response"></param>
         /// <param name="started"></param>
         /// <returns></returns>
-        public static async Task<ResponseData> GetDataFromHttpResponseMessageAsync(HttpResponse response, DateTime started)
+        public static async Task<ResponseData> GetDataFromHttpResponseMessageAsync(HttpResponse response, DateTime started, bool readBody)
         {
             var result = new ResponseData()
             {
@@ -181,23 +181,22 @@ namespace Sushi.WebserviceLogger.Core
                     }
                 }
             }
-            //get body
-            if (response.Body != null && response.Body.CanRead)
+            //get body            
+            result.Body = new Body()
+            {
+                ContentType = GuessContentTypeFromHeader(response.ContentType)
+            };
+
+            if (readBody && response.Body != null && response.Body.CanRead)
             {
                 response.Body.Position = 0;
                 using (var sr = new StreamReader(response.Body, Encoding.UTF8, true, 1024, true))
                 {
                     //get content
-                    result.Body = new Body()
-                    {
-                        Data = await sr.ReadToEndAsync()
-                    };
+                    result.Body.Data = await sr.ReadToEndAsync();
                 }
                 //set stream back to position 0
                 response.Body.Position = 0;
-
-                //try to guess content type
-                result.Body.ContentType = GuessContentTypeFromHeader(response.ContentType);
             }
 
             return result;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sushi.WebserviceLogger.SampleService.Filters;
 
 namespace Sushi.WebserviceLogger.SampleService.Controllers
 {   
@@ -54,6 +55,19 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         public async Task<ActionResult> Exception(MyPayload request)
         {
             throw new Exception("Exception triggered by calling the exception API.");
+        }
+
+        /// <summary>
+        /// Triggers error handling filter.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [TypeFilter(typeof(ErrorFilter))]
+        [HttpPost]
+        [Route("internalServerError")]
+        public async Task<ActionResult> InternalServerError(MyPayload request)
+        {
+            throw new Exception("Exception triggered by calling the internal server error API.");
         }
 
         /// <summary>
