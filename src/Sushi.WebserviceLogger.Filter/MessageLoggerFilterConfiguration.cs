@@ -8,8 +8,16 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Filter
 {
+    /// <summary>
+    /// Represents the configuration used to create a <see cref="MessageLoggerFilter{T}"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MessageLoggerFilterConfiguration<T> where T : LogItem
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerFilterConfiguration{T}"/>.
+        /// </summary>
+        /// <param name="persister"></param>
         public MessageLoggerFilterConfiguration(ILogItemPersister persister)
         {
             Persister = persister;
@@ -55,7 +63,7 @@ namespace Sushi.WebserviceLogger.Filter
         public ILogItemPersister Persister { get; }
 
         /// <summary>
-        /// Called when the filter first executes and receives the request.
+        /// Called when the filter first executes and receives the request.        
         /// </summary>
         public Action<MessageLoggerFilterContext> OnRequestReceived { get; set; }
 

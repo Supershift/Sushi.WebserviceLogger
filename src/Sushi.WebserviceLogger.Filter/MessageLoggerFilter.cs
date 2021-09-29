@@ -10,12 +10,21 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Filter
 {
+    /// <summary>
+    /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter (ie. do not use 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
     {
         protected MessageLoggerFilterConfiguration<T> Config { get; }
         protected Logger<T> Logger { get; }
         protected MessageLoggerFilterContext FilterContext { get; }
-
+        
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="httpContextAccessor"></param>
         public MessageLoggerFilter(MessageLoggerFilterConfiguration<T> config, IHttpContextAccessor httpContextAccessor)
         {
             Config = config;
@@ -69,7 +78,13 @@ namespace Sushi.WebserviceLogger.Filter
             };
         }
 
-        // triggers at beginning of pipeline 
+        /// <summary>
+        /// Called at beginning of pipeline and calls <see cref="MessageLoggerFilterConfiguration{T}.OnRequestReceived"/>. 
+        /// After execution of the pipeline it gathers all data and calls the logger to persist the log data, calling <see cref="MessageLoggerFilterConfiguration{T}.OnLoggingDataCreated"/>.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             var started = DateTime.UtcNow;
@@ -135,6 +150,10 @@ namespace Sushi.WebserviceLogger.Filter
             }
         }
 
+        /// <summary>
+        /// Called before the action is executed, reads the request's body.
+        /// </summary>
+        /// <param name="context"></param>
         public void OnActionExecuting(ActionExecutingContext context)
         {
             if (FilterContext.StopLogging)
@@ -159,18 +178,29 @@ namespace Sushi.WebserviceLogger.Filter
             }
         }
 
+        /// <summary>
+        /// Called after the action has executed, allows logged request body to be inspected and changed by <see cref="MessageLoggerFilterConfiguration{T}.OnRequestBodyRead"/> event.
+        /// </summary>
+        /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
         {
             // the action has been executed and the request object can now be safely passed to clients, because altering it cannot interfere with the action anymore
             Config.OnRequestBodyRead?.Invoke(FilterContext);
         }
 
+        /// <summary>
+        /// Called when the result is created but not yet written to the response.
+        /// </summary>
+        /// <param name="context"></param>
         public void OnResultExecuting(ResultExecutingContext context)
         {
             
         }
 
-        // triggers when there is a result, and the result cannot be changed anymore because the response has already started
+        /// <summary>
+        /// Called when the result has been written to the response. Reads the result and calls <see cref="MessageLoggerFilterConfiguration{T}.OnResponseBodyRead"/>.
+        /// </summary>
+        /// <param name="context"></param>
         public void OnResultExecuted(ResultExecutedContext context)
         {
             if (FilterContext.StopLogging)

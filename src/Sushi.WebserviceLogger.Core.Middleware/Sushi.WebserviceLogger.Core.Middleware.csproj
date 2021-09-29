@@ -13,7 +13,7 @@
     <Authors>Mark de Vries</Authors>
     <Company>Supershift B.V.</Company>
     <Description>Middleware to add webservice logging to ASP.NET core application pipeline.</Description>
-    <Copyright>2020 Supershift B.V.</Copyright>
+    <Copyright>2021 Supershift B.V.</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/Supershift/Sushi.WebserviceLogger</RepositoryUrl>
