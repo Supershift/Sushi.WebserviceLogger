@@ -208,18 +208,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public static Url GetUrlFromRequest(HttpRequest request)
         {
-            var result = new Url()
-            {
-                AbsoluteUrl = request.GetEncodedUrl(),
-                Address = request.GetDisplayUrl(),
-                Host = request.Host.Value,
-                Path = request.Path.Value,
-                Port = request.Host.Port,
-                Scheme = request.Scheme,
-                Query = request.QueryString.Value
-            };
-
-            return result;
+            return GetUrlFromString(request.GetDisplayUrl());            
         }
 
         /// <summary>
