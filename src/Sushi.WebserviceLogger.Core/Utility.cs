@@ -239,7 +239,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public static Url GetUrlFromString(string url)
         {
-            //conver string to uri            
+            // convert string to uri            
             if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return GetUrlFromUri(uri);
             else

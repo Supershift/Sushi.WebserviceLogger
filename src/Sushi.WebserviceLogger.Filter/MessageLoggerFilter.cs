@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Filter
 {
-    public class MessageLoggerFilter<T> : IAsyncActionFilter, IAsyncResourceFilter, IAsyncAlwaysRunResultFilter, IAsyncExceptionFilter where T : LogItem, new()
+    public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
     {
         protected MessageLoggerFilterConfiguration<T> Config { get; }
         protected Logger<T> Logger { get; }
-        protected MessageLoggerFilterContext FilterContext {get;}
+        protected MessageLoggerFilterContext FilterContext { get; }
 
         public MessageLoggerFilter(MessageLoggerFilterConfiguration<T> config, IHttpContextAccessor httpContextAccessor)
         {
@@ -63,67 +63,133 @@ namespace Sushi.WebserviceLogger.Filter
             Logger.IndexNameCallback = Config.IndexNameCallback;
             Logger.MaxBodyContentLength = Config.MaxBodyContentLength;
 
-            FilterContext = new MessageLoggerFilterContext();            
+            FilterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext)
+            {
+                
+            };
         }
 
         // triggers at beginning of pipeline 
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             var started = DateTime.UtcNow;
+            Config.OnRequestReceived?.Invoke(FilterContext);
             await next();
 
-            // everything has been executed, create the log item            
-            var requestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
-            requestData.Body.Data = FilterContext.RequestData;
+            if(FilterContext.StopLogging)
+            {
+                return;
+            }
+
             
-            var responseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
-            responseData.Body.Data = FilterContext.ResponseData;
-
-            await Logger.AddLogItemAsync(requestData, responseData, ContextType.Server);
-        }
-
-        // triggers right before the controller's action is executed
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            // first execute the action
-            await next();
-
-            // get request body data
-            // check if there is a parameter on the action that is filled from the body
-            var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
-            if (bodyParameter != null)
+            // read all request data
+            try
+            {   
+                FilterContext.RequestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
+                if (FilterContext.RequestObject != null)
+                {
+                    FilterContext.RequestData.Body.Data = System.Text.Json.JsonSerializer.Serialize(FilterContext.RequestObject);
+                }
+            }
+            catch (Exception ex)
             {
-                var bodyObject = context.ActionArguments[bodyParameter.Name];
+                if (Logger.HandleException(ex, null))
+                    throw;
+            }
 
-                // serialize the body object
-                FilterContext.RequestData = System.Text.Json.JsonSerializer.Serialize(bodyObject);                 
+            // read all response data
+            try
+            {
+                FilterContext.ResponseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
+                if (FilterContext.ResponseObject != null)
+                {
+                    FilterContext.ResponseData.Body.Data = System.Text.Json.JsonSerializer.Serialize(FilterContext.ResponseObject);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Logger.HandleException(ex, null))
+                    throw;
+            }
+
+            // last event before logger is called
+            try
+            {
+                Config.OnLoggingDataCreated?.Invoke(FilterContext);
+            }
+            catch (Exception ex)
+            {
+                if (Logger.HandleException(ex, null))
+                    throw;
+            }
+
+            if(FilterContext.StopLogging)
+            {
+                return;
+            }
+
+            // this must run outside try/catch, because Logger has its own exception handling logic
+            if (FilterContext.RequestData != null && FilterContext.ResponseData != null)
+            {
+                await Logger.AddLogItemAsync(FilterContext.RequestData, FilterContext.ResponseData, ContextType.Server);
             }
         }
 
-        // triggers when the controller returns a result    
-        public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+        public void OnActionExecuting(ActionExecutingContext context)
         {
-            // first let all other result filters run, as they may change the result
-            await next();
-
-            // add response body data
-            FilterContext.ResponseData = GetBodyFromResult(context.Result);            
-        }
-
-        public async Task OnExceptionAsync(ExceptionContext context)
-        {
-            FilterContext.ResponseData = GetBodyFromResult(context.Result);
-        }
-
-        protected string GetBodyFromResult(IActionResult actionResult)
-        {
-            string result = null;
-            if (actionResult != null && actionResult is ObjectResult objectResult)
+            if (FilterContext.StopLogging)
             {
-                // serialize the result body object
-                result = System.Text.Json.JsonSerializer.Serialize(objectResult.Value);
+                return;
             }
-            return result;
+            try
+            {
+                // get request body data
+                // check if there is a parameter on the action that is filled from the body
+                var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
+                if (bodyParameter != null)
+                {   
+                    var bodyObject = context.ActionArguments[bodyParameter.Name];
+                    FilterContext.RequestObject = bodyObject;     
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Logger.HandleException(ex, null))
+                    throw;
+            }
+        }
+
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
+            // the action has been executed and the request object can now be safely passed to clients, because altering it cannot interfere with the action anymore
+            Config.OnRequestBodyRead?.Invoke(FilterContext);
+        }
+
+        public void OnResultExecuting(ResultExecutingContext context)
+        {
+            
+        }
+
+        // triggers when there is a result, and the result cannot be changed anymore because the response has already started
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
+            if (FilterContext.StopLogging)
+            {
+                return;
+            }
+            try
+            {
+                if (context.Result != null && context.Result is ObjectResult objectResult)
+                {
+                    FilterContext.ResponseObject = objectResult.Value;
+                }
+                Config.OnResponseBodyRead?.Invoke(FilterContext);
+            }
+            catch(Exception ex)
+            {
+                if (Logger.HandleException(ex, null))
+                    throw;
+            }
         }
     }
 }

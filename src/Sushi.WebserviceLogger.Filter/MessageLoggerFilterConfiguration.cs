@@ -54,6 +54,24 @@ namespace Sushi.WebserviceLogger.Filter
         /// </summary>
         public ILogItemPersister Persister { get; }
 
-        
+        /// <summary>
+        /// Called when the filter first executes and receives the request.
+        /// </summary>
+        public Action<MessageLoggerFilterContext> OnRequestReceived { get; set; }
+
+        /// <summary>
+        /// Called when the action has been executed and the request body has been read by the filter.
+        /// </summary>
+        public Action<MessageLoggerFilterContext> OnRequestBodyRead { get; set; }
+
+        /// <summary>
+        /// Called when the action's result has been written and the response body has been read by the filter.
+        /// </summary>
+        public Action<MessageLoggerFilterContext> OnResponseBodyRead { get; set; }
+
+        /// <summary>
+        /// Called when the filter has parsed all data from request and response and is about to persist the data. 
+        /// </summary>
+        public Action<MessageLoggerFilterContext> OnLoggingDataCreated { get; set; }
     }
 }
