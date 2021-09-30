@@ -4,6 +4,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Sushi.WebserviceLogger.Core
 {
@@ -104,6 +107,111 @@ namespace Sushi.WebserviceLogger.Core
         }
 
         /// <summary>
+        /// Returns an instance of <see cref="RequestData"/> based on values found in <paramref name="request"/>.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="started"></param>
+        /// <returns></returns>
+        public static async Task<RequestData> GetDataFromHttpRequestMessageAsync(HttpRequest request, DateTime started, bool readBody)
+        {
+            var result = new RequestData()
+            {
+                Url = GetUrlFromRequest(request),
+                Method = request.Method,
+                Started = started
+            };
+            // get headers from request
+            if (request.Headers != null)
+            {
+                result.Headers = new List<Header>();
+                foreach (var header in request.Headers)
+                {
+                    foreach (var value in header.Value)
+                    {
+                        result.Headers.Add(new Header(header.Key, value));
+                    }
+                }
+            }
+            // get body
+            result.Body = new Body()
+            {
+                ContentType = GuessContentTypeFromHeader(request.ContentType)
+            };
+
+            if (readBody && request.Body != null && request.Body.CanSeek && request.ContentLength > 0 )
+            {
+                // set stream back to position 0
+                request.Body.Position = 0;
+
+                using (var sr = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
+                {
+                    // get content
+                    result.Body.Data = await sr.ReadToEndAsync();                    
+                }
+
+                // set stream back to position 0
+                request.Body.Position = 0;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns an instance <see cref="ResponseData"/> of based on values found in <paramref name="response"/>.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="started"></param>
+        /// <returns></returns>
+        public static async Task<ResponseData> GetDataFromHttpResponseMessageAsync(HttpResponse response, DateTime started, bool readBody)
+        {
+            var result = new ResponseData()
+            {
+                Started = started,
+                HttpStatusCode = response.StatusCode
+            };
+            //get headers from request
+            if (response.Headers != null)
+            {
+                result.Headers = new List<Header>();
+                foreach (var header in response.Headers)
+                {
+                    foreach (var value in header.Value)
+                    {
+                        result.Headers.Add(new Header(header.Key, value));
+                    }
+                }
+            }
+            //get body            
+            result.Body = new Body()
+            {
+                ContentType = GuessContentTypeFromHeader(response.ContentType)
+            };
+
+            if (readBody && response.Body != null && response.Body.CanRead)
+            {
+                response.Body.Position = 0;
+                using (var sr = new StreamReader(response.Body, Encoding.UTF8, true, 1024, true))
+                {
+                    //get content
+                    result.Body.Data = await sr.ReadToEndAsync();
+                }
+                //set stream back to position 0
+                response.Body.Position = 0;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an instance of <see cref="Url"/> from an <see cref="HttpRequest"/> object.
+        /// </summary>        
+        /// <returns></returns>
+        public static Url GetUrlFromRequest(HttpRequest request)
+        {
+            return GetUrlFromString(request.GetDisplayUrl());            
+        }
+
+        /// <summary>
         /// Guesses the <see cref="ContentType"/> based on <paramref name="contentTypeHeaderValue"/>.
         /// </summary>
         /// <param name="contentTypeHeaderValue"></param>
@@ -131,7 +239,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public static Url GetUrlFromString(string url)
         {
-            //conver string to uri            
+            // convert string to uri            
             if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return GetUrlFromUri(uri);
             else

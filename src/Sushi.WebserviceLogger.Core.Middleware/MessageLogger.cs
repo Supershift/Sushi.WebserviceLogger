@@ -22,7 +22,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         {
             _next = next;
             Config = config;
-            ContextType = ContextType.Server;
+            ContextType = ContextType.Server;            
         }
 
         /// <summary>
@@ -115,9 +115,9 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                     try
                     {
                         //create request and response data objects
-                        requestData = await Utility.GetDataFromHttpRequestMessageAsync(request, requestStarted);
+                        requestData = await Utility.GetDataFromHttpRequestMessageAsync(request, requestStarted, true);
 
-                        responseData = await Utility.GetDataFromHttpResponseMessageAsync(response, DateTime.UtcNow);
+                        responseData = await Utility.GetDataFromHttpResponseMessageAsync(response, DateTime.UtcNow, true);
 
                         //copy contents of the buffer to the response (if the mem stream was used)
                         if(responseBuffer.Length > 0)

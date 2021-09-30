@@ -14,7 +14,7 @@
     <Authors>Mark de Vries</Authors>
     <Company>Supershift B.V.</Company>
     <Description>Core package to enable webservice logging. Provides an implementation of DelegatingHandler and default persister to insert into Elastic Search.</Description>
-    <Copyright>2020 Supershift B.V.</Copyright>
+    <Copyright>2021 Supershift B.V.</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -30,6 +30,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>obj\Release\Sushi.WebserviceLogger.Core.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NEST" Version="7.14.1" />

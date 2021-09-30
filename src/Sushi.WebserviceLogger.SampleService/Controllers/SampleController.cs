@@ -4,13 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sushi.WebserviceLogger.SampleService.Filters;
 
 namespace Sushi.WebserviceLogger.SampleService.Controllers
 {   
     [ApiController]
     [Route("api/")]
     [Route("mock/")]
-    [Route("none/")]
+    [Route("filter/")]
+    [Route("none/")]    
+    [ServiceFilter(typeof(Filter.MessageLoggerFilter<MyLogItem>))]
     public class SampleController : ControllerBase
     {
         [HttpGet]
@@ -27,7 +30,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("echo")]        
-        public async Task<ActionResult> Echo(MyPayload request, [FromQuery]int input = 0)
+        public async Task<ActionResult<MyPayload>> Echo(MyPayload request, [FromQuery] int input = 0)
         {
             if(input > 0)
             {
@@ -42,7 +45,53 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
             public string Data { get; set; }
         }
 
-        
+        /// <summary>
+        /// Always throws an exception
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("exception")]
+        public async Task<ActionResult> Exception(MyPayload request)
+        {
+            throw new Exception("Exception triggered by calling the exception API.");
+        }
+
+        /// <summary>
+        /// Triggers error handling filter.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [TypeFilter(typeof(ErrorFilter))]
+        [HttpPost]
+        [Route("internalServerError")]
+        public async Task<ActionResult> InternalServerError(MyPayload request)
+        {
+            throw new Exception("Exception triggered by calling the internal server error API.");
+        }
+
+        /// <summary>
+        /// Always returns a bad request
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("badrequest")]
+        public async Task<ActionResult> BadRequest(MyPayload request)
+        {
+            if(string.IsNullOrWhiteSpace(request.Data))
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return BadRequest("request.Data was filled wrong");
+            }
+        }
+
+
+
+
 
         [HttpGet]
         [Route("order")]        

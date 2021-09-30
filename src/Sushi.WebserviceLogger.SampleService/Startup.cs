@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Sushi.WebserviceLogger.Core;
 using Sushi.WebserviceLogger.Core.Middleware;
+using Sushi.WebserviceLogger.Filter;
 using Sushi.WebserviceLogger.Persisters;
 
 namespace Sushi.WebserviceLogger.SampleService
@@ -43,7 +44,17 @@ namespace Sushi.WebserviceLogger.SampleService
             //create DI for queuepersister
             services.AddSingleton(s=> new QueuePersister(ElasticConfig));
             //register a background worker to write from queue to elastic
-            services.AddHostedService<QueueProcessorHostedService>();            
+            services.AddHostedService<QueueProcessorHostedService>();
+            
+            services.AddHttpContextAccessor();
+
+
+            var config = new MessageLoggerFilterConfiguration<MyLogItem>(new MockPersister()
+            {
+                Callback = (logItem, data) => Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(logItem))
+            });
+             
+            services.AddMessageLoggerFilter(config);            
         }
 
         private ElasticConfiguration ElasticConfig { get; set; }
@@ -51,12 +62,15 @@ namespace Sushi.WebserviceLogger.SampleService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, QueuePersister persister)
         {
+            app.UseExceptionHandler("/error");
+
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
             }
             else
             {
+                
                 app.UseHsts();
             }
             
