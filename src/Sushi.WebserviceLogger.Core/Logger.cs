@@ -14,18 +14,10 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="Logger"/>.
         /// </summary>
-        /// <param name="configuration"></param>
-        public Logger(ElasticConfiguration configuration) : base(configuration)
+        /// <param name="config"></param>
+        public Logger(LoggerConfiguration config) : base(config)
         {
 
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="Logger{T}"/>.
-        /// </summary>        
-        public Logger(ILogItemPersister persister) : base(persister)
-        {
-            
         }
     }
          
@@ -34,22 +26,19 @@ namespace Sushi.WebserviceLogger.Core
     /// Sends request/response data to ElasticSearch using <typeparamref name="T"/>.
     /// </summary>
     public class Logger<T> where T : LogItem, new()
-    {
-        ILogItemPersister LogItemPersister;
+    {   
         /// <summary>
         /// Creates an instance of <see cref="Logger{T}"/>.
-        /// </summary>        
-        public Logger(ILogItemPersister persister)
+        /// </summary>
+        /// <param name="config"></param>
+        public Logger(LoggerConfiguration config)
         {
-            LogItemPersister = persister;
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+            Config = config;
         }
 
-
-        /// <summary>
-        /// Creates an instance of <see cref="Logger{T}"/> using <see cref="InProcessPersister"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
-        public Logger(ElasticConfiguration configuration) : this(new InProcessPersister(configuration)) { }                
+        public LoggerConfiguration Config { get;  }
 
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
@@ -107,7 +96,7 @@ namespace Sushi.WebserviceLogger.Core
                     index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 
                 //use persister to index item
-                await LogItemPersister.StoreLogItemAsync(logItem, index);                
+                await Config.LogItemPersister.StoreLogItemAsync(logItem, index);                
 
                 return logItem;
             }

@@ -30,7 +30,7 @@ namespace Sushi.WebserviceLogger.Filter
             Config = config;
 
             // create a logger, and hook up the events defined in config
-            Logger = new Logger<T>(Config.Persister);
+            Logger = new Logger<T>(Config.LoggerConfig);
 
             if (Config.CorrelationIdCallback != null)
             {

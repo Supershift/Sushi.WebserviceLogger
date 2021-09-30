@@ -28,11 +28,12 @@ namespace Sushi.WebserviceLogger.Test
             string elasticUrl = config["elasticUrl"];
             string elasticUser = config["elasticUsername"];
             string elasticPassword = config["elasticPassword"];
-            Config = new Core.ElasticConfiguration(elasticUrl, elasticUser, elasticPassword);
-
+            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUser, elasticPassword);
+            LoggerConfig = new Core.LoggerConfiguration(new Core.InProcessPersister(ElasticConfig));
 
         }
 
-        public static Core.ElasticConfiguration Config { get; private set; }
+        public static Core.ElasticConfiguration ElasticConfig { get; private set; }
+        public static Core.LoggerConfiguration LoggerConfig { get; private set; }
     }
 }
