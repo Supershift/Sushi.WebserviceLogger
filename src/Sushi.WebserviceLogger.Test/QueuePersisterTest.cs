@@ -17,7 +17,7 @@ namespace Sushi.WebserviceLogger.Test
         public async Task IndexItems()
         {
 
-            var queuePersister = new QueuePersister(Initialization.Config);
+            var queuePersister = new QueuePersister(Initialization.ElasticConfig);
             int itemCount = 100;
             var sw = new Stopwatch();
             sw.Start();

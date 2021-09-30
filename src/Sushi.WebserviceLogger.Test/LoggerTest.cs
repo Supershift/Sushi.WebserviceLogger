@@ -30,7 +30,7 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var logger = new Core.Logger(Initialization.Config)
+            var logger = new Logger(Initialization.LoggerConfig)
             {
                 IndexNameCallback = () => "webservicelogs-test"
             };
@@ -44,7 +44,7 @@ namespace Sushi.WebserviceLogger.Test
 
                 },
                 ClientIP = "127.0.0.1",
-                Headers = new List<Core.Header>() { new Core.Header("Content-Type", "application/json"), new Core.Header("x-mycustomheader", "my value") },
+                Headers = new List<Header>() { new Header("Content-Type", "application/json"), new Core.Header("x-mycustomheader", "my value") },
                 Started = new DateTime(2019,01,01).Add(DateTime.UtcNow.TimeOfDay),
                 Url = Utility.GetUrlFromUri(new Uri("http://localhost/myService"))
             };
@@ -70,7 +70,7 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var logger = new Core.Logger<MyLogItem>(Initialization.Config);
+            var logger = new Core.Logger<MyLogItem>(Initialization.LoggerConfig);
             logger.AddLogItemCallback = MyDelegate;
 
             var requestData = new Core.RequestData()
@@ -107,7 +107,7 @@ namespace Sushi.WebserviceLogger.Test
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
             string correlationID= Guid.NewGuid().ToString();
-            var logger = new Logger<MyLogItem>(Initialization.Config);
+            var logger = new Logger<MyLogItem>(Initialization.LoggerConfig);
             logger.AddLogItemCallback = MyDelegate;
             logger.CorrelationIdCallback = () => { return correlationID; };
             var requestData = new Core.RequestData()
@@ -146,10 +146,10 @@ namespace Sushi.WebserviceLogger.Test
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
             string correlationID = Guid.NewGuid().ToString();
-            var logger = new Logger<MyLogItem>(Initialization.Config);
+            var logger = new Logger<MyLogItem>(Initialization.LoggerConfig);
             logger.AddLogItemCallback += Block;
             logger.AddLogItemCallback += MyDelegate;
-            logger.ExceptionCallback += ExceptionCallback;
+            logger.ExceptionCallback += ExceptionCallback;            
             
             var requestData = new Core.RequestData()
             {

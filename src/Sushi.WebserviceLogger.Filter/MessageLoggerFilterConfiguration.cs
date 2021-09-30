@@ -12,16 +12,20 @@ namespace Sushi.WebserviceLogger.Filter
     /// Represents the configuration used to create a <see cref="MessageLoggerFilter{T}"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MessageLoggerFilterConfiguration<T> where T : LogItem
+    public class MessageLoggerFilterConfiguration<T> where T : LogItem, new()
     {
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilterConfiguration{T}"/>.
-        /// </summary>
-        /// <param name="persister"></param>
-        public MessageLoggerFilterConfiguration(ILogItemPersister persister)
+        /// </summary>        
+        public MessageLoggerFilterConfiguration(LoggerConfiguration config) 
         {
-            Persister = persister;
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+            
+            LoggerConfig = config;
         }
+
+        public LoggerConfiguration LoggerConfig { get; }
 
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
@@ -57,10 +61,7 @@ namespace Sushi.WebserviceLogger.Filter
         /// </summary>
         public Func<HttpContext, string> CorrelationIdCallback { get; set; }
 
-        /// <summary>
-        /// Gets or sets the persister used to store logitems by the <see cref="Logger"/>.
-        /// </summary>
-        public ILogItemPersister Persister { get; }
+        
 
         /// <summary>
         /// Called when the filter first executes and receives the request.        

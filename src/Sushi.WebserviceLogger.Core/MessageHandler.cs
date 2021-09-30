@@ -31,22 +31,10 @@ namespace Sushi.WebserviceLogger.Core
         /// </summary>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(ElasticConfiguration configuration) where T : LogItem, new()
+        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(LoggerConfiguration configuration) where T : LogItem, new()
         {
             var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(configuration));
             result.InnerHandler = new HttpClientHandler();
-            return result;
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log requests made to Web API controllers.        
-        /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        public static MessageHandler<T> CreateWebApiMessageHandler<T>(ElasticConfiguration configuration) where T : LogItem, new()
-        {
-            var result = new MessageHandler<T>(ContextType.Server, new Logger<T>(configuration));
             return result;
         }
 
@@ -61,17 +49,6 @@ namespace Sushi.WebserviceLogger.Core
         {
             var result = new MessageHandler<T>(ContextType.Client, logger);
             result.InnerHandler = new HttpClientHandler();
-            return result;
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log requests made to Web API controllers.        
-        /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// </summary>        
-        /// <returns></returns>
-        public static MessageHandler<T> CreateWebApiMessageHandler<T>(Logger<T> logger) where T : LogItem, new()
-        {
-            var result = new MessageHandler<T>(ContextType.Server, logger);
             return result;
         }
     }

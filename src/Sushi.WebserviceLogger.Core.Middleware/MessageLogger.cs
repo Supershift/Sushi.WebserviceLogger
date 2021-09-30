@@ -46,7 +46,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             var request = context.Request;
             var response = context.Response;
 
-            var logger = new Logger<T>(Config.Persister);
+            var logger = new Logger<T>(Config.LoggerConfig);
             //register correlation callback on logger
             logger.CorrelationIdCallback = () =>
             {

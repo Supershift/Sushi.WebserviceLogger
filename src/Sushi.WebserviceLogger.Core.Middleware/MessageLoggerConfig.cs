@@ -9,24 +9,21 @@ namespace Sushi.WebserviceLogger.Core.Middleware
     /// Represents the configuration used to create a <see cref="Logger"/> by the <see cref="MessageLogger{T}"/> middleware.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MessageLoggerConfig<T> where T : LogItem
+    public class MessageLoggerConfig<T> where T : LogItem, new()
     {
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
         /// </summary>
         /// <param name="config"></param>
-        public MessageLoggerConfig(ElasticConfiguration config)
+        public MessageLoggerConfig(LoggerConfiguration config)
         {
-            Persister = new InProcessPersister(config);
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            LoggerConfig = config;
         }
 
-        /// <summary>
-        /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
-        /// </summary>
-        public MessageLoggerConfig(ILogItemPersister persister)
-        {
-            Persister = persister;
-        }
+        public LoggerConfiguration LoggerConfig { get; }
 
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         

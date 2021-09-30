@@ -16,7 +16,7 @@ namespace Sushi.WebserviceLogger.Test
         [TestMethod]
         public async Task RetrieveAll()
         {
-            var client = ElasticClientFactory.CreateClient(Initialization.Config);
+            var client = ElasticClientFactory.CreateClient(Initialization.ElasticConfig);
             var result = await client.SearchAsync<LogItem>(s => s.Index(indexName).MatchAll());
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
