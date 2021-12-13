@@ -20,7 +20,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         [Route("ping")]        
         public ActionResult Ping()
         {
-            return Ok();
+            return Ok("hello world");
         }
 
         /// <summary>
