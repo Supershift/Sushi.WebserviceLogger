@@ -33,7 +33,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public static MessageHandler<T> CreateHttpClientMessageHandler<T>(LoggerConfiguration configuration) where T : LogItem, new()
         {
-            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(configuration));
+            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(configuration.LogItemPersister));
             result.InnerHandler = new HttpClientHandler();
             return result;
         }

@@ -14,8 +14,8 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="Logger"/>.
         /// </summary>
-        /// <param name="config"></param>
-        public Logger(LoggerConfiguration config) : base(config)
+        /// <param name="persister"></param>
+        public Logger(ILogItemPersister persister) : base(persister)
         {
 
         }
@@ -30,16 +30,14 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="Logger{T}"/>.
         /// </summary>
-        /// <param name="config"></param>
-        public Logger(LoggerConfiguration config)
+        /// <param name="persister"></param>
+        public Logger(ILogItemPersister persister)
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-            Config = config;
+            _persister = persister;
         }
 
-        public LoggerConfiguration Config { get;  }
-
+        private readonly ILogItemPersister _persister;
+        
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
         /// This allows the caller to enrich the instance of <typeparamref name="T"/> or even return a new instance of <typeparamref name="T"/>.
@@ -96,7 +94,7 @@ namespace Sushi.WebserviceLogger.Core
                     index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 
                 //use persister to index item
-                await Config.LogItemPersister.StoreLogItemAsync(logItem, index);                
+                await _persister.StoreLogItemAsync(logItem, index);                
 
                 return logItem;
             }

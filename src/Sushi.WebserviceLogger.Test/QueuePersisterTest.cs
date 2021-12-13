@@ -17,7 +17,7 @@ namespace Sushi.WebserviceLogger.Test
         public async Task IndexItems()
         {
 
-            var queuePersister = new QueuePersister(Initialization.ElasticConfig);
+            var queuePersister = new QueuePersister();
             int itemCount = 100;
             var sw = new Stopwatch();
             sw.Start();
@@ -37,7 +37,7 @@ namespace Sushi.WebserviceLogger.Test
 
             //process items
             sw.Restart();
-            var processor = new QueueProcessorHostedService(queuePersister);
+            var processor = new QueueProcessorHostedService(queuePersister, Core.ElasticClientFactory.CreateClient(Initialization.ElasticConfig));
             processor.MaxBatchSize = itemCount;
             int itemsProcessed = await processor.ProcessQueueAsync();
             Console.WriteLine($"Persisting queue: {sw.Elapsed}");

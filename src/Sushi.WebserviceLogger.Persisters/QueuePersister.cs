@@ -17,17 +17,11 @@ namespace Sushi.WebserviceLogger.Persisters
     {
         /// <summary>
         /// Creates a new instance of <see cref="QueuePersister"/>.
-        /// </summary>
-        /// <param name="elasticConfiguration"></param>
-        public QueuePersister(ElasticConfiguration elasticConfiguration)
+        /// </summary>        
+        public QueuePersister()
         {
-            Configuration = elasticConfiguration;
+            
         }
-
-        /// <summary>
-        /// Gets the configuration used to write to Elastic by the consumer of the queue.
-        /// </summary>
-        public ElasticConfiguration Configuration { get; private set; }
 
         private ConcurrentQueue<QueuedItem> operations = new ConcurrentQueue<QueuedItem>();        
 
