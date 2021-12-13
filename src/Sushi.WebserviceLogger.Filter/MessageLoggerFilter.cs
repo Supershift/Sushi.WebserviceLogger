@@ -25,12 +25,10 @@ namespace Sushi.WebserviceLogger.Filter
         /// </summary>
         /// <param name="config"></param>
         /// <param name="httpContextAccessor"></param>
-        public MessageLoggerFilter(MessageLoggerFilterConfiguration<T> config, IHttpContextAccessor httpContextAccessor)
+        public MessageLoggerFilter(MessageLoggerFilterConfiguration<T> config, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
             Config = config;
-
-            // create a logger, and hook up the events defined in config
-            Logger = new Logger<T>(Config.LoggerConfig);
+            Logger = logger;
 
             if (Config.CorrelationIdCallback != null)
             {

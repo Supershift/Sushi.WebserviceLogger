@@ -39,10 +39,23 @@ namespace Sushi.WebserviceLogger.SampleService
             string elasticUrl = Configuration["ElasticUrl"];
             string elasticUsername = Configuration["ElasticUsername"];
             string elasticPassword = Configuration["ElasticPassword"];
-            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUsername, elasticPassword);          
-            
-            //create DI for queuepersister
-            services.AddSingleton(s=> new QueuePersister(ElasticConfig));
+            var elasticSettings = new Nest.ConnectionSettings(new Uri(elasticUrl))
+                    .BasicAuthentication(elasticUsername, elasticPassword)
+                    .ThrowExceptions(true);
+
+            var elasticClient = new Nest.ElasticClient(elasticSettings);
+
+            // register elasticClient
+            services.AddSingleton<Nest.IElasticClient>(elasticClient);
+
+            // register queuepersister instance
+            var queuePersister = new QueuePersister();
+            services.AddSingleton(queuePersister);
+            services.AddSingleton<ILogItemPersister>(queuePersister);
+
+            // register logger
+            services.AddTransient(typeof(Sushi.WebserviceLogger.Core.Logger<>));
+
             //register a background worker to write from queue to elastic
             services.AddHostedService<QueueProcessorHostedService>();
             
@@ -58,7 +71,7 @@ namespace Sushi.WebserviceLogger.SampleService
             services.AddMessageLoggerFilter(filterConfig);            
         }
 
-        private ElasticConfiguration ElasticConfig { get; set; }
+        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, QueuePersister persister)

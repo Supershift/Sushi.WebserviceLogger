@@ -15,12 +15,14 @@ namespace Sushi.WebserviceLogger.Persisters
     {
         /// <summary>
         /// Creates a new instance of <see cref="QueueProcessorHostedService"/> which can be used to process logitems for the provided <paramref name="persister"/>.
-        /// </summary>
-        /// <param name="persister"></param>
-        public QueueProcessorHostedService(QueuePersister persister)
+        /// </summary>        
+        public QueueProcessorHostedService(QueuePersister persister, Nest.IElasticClient elasticClient)
         {
             Persister = persister;
+            _elasticClient = elasticClient;
         }
+
+        private Nest.IElasticClient _elasticClient;
 
         /// <summary>
         /// Gets or sets a value indicating how much time is spent waiting if the persister's buffer is empty.
@@ -29,7 +31,7 @@ namespace Sushi.WebserviceLogger.Persisters
         /// <summary>
         /// Gets the persister associated with this processor.
         /// </summary>
-        public QueuePersister Persister { get; set; }
+        public QueuePersister Persister { get; }
         /// <summary>
         /// Gets or sets the maximum number of items inserted into Elastic in one bulk operation.
         /// </summary>
@@ -95,9 +97,8 @@ namespace Sushi.WebserviceLogger.Persisters
                     break;
             }
             if (itemCount > 0)
-            {
-                var client = Core.ElasticClientFactory.CreateClient(Persister.Configuration);
-                await client.BulkAsync(bulkDescriptor).ConfigureAwait(false); 
+            {   
+                await _elasticClient.BulkAsync(bulkDescriptor).ConfigureAwait(false); 
             }
             return itemCount;
         }
