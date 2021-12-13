@@ -11,18 +11,14 @@ namespace Sushi.WebserviceLogger.Core
     public class InProcessPersister : ILogItemPersister
     {
         /// <summary>
-        /// Gets the configuration for Elastic used by this instance.
-        /// </summary>
-        public ElasticConfiguration Configuration { get; private set; }
-
-        /// <summary>
         /// Creates a new instance of <see cref="InProcessPersister"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
-        public InProcessPersister(ElasticConfiguration configuration)
+        /// </summary>        
+        public InProcessPersister(Nest.IElasticClient elasticClient)
         {
-            Configuration = configuration;
+            _elasticClient = elasticClient;
         }
+
+        private Nest.IElasticClient _elasticClient;
 
         /// <summary>
         /// Stores a <see cref="LogItem"/> in Elastic.
@@ -33,11 +29,8 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public async Task StoreLogItemAsync<T>(T logItem, string index) where T : LogItem
         {
-            //create elastic client            
-            var elasticClient = ElasticClientFactory.CreateClient(Configuration);
-
             //index logItem                
-            var response = await elasticClient.CreateAsync(logItem, i => i.Index(index));
+            var response = await _elasticClient.CreateAsync(logItem, i => i.Index(index));
         }
     }
 }
