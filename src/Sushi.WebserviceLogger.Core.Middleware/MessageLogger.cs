@@ -98,8 +98,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                     {
                         //load the request's stream into a buffer, to allow multiple reads
                         request.EnableBuffering();
-                        //response does not allow this, so we have to create a custom buffer
-                        //asp.net core 3.1 has a FileWriteBuffer, but core 2 does not, so we need to use a buffered stream (which just uses memory), which is not ideal for large responses
+                        //response does not allow this, so we have to create a custom buffer                        
                         response.Body = responseBuffer;                        
                     }
                     catch (Exception ex)
