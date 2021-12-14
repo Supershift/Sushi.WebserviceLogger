@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 namespace Sushi.WebserviceLogger.Filter
 {
     /// <summary>
+    /// Represents the configuration used to create a <see cref="MessageLoggerFilter"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class MessageLoggerFilterOptions : MessageLoggerFilterOptions<LogItem>
+    {
+
+    }
+
+    /// <summary>
     /// Represents the configuration used to create a <see cref="MessageLoggerFilter{T}"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>

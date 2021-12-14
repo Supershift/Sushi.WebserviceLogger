@@ -11,7 +11,22 @@ using System.Threading.Tasks;
 namespace Sushi.WebserviceLogger.Filter
 {
     /// <summary>
-    /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter (ie. do not use 
+    /// Filter to add webservice logging to Web API, using the default <see cref="LogItem"/>. 
+    /// The filter is not thread-safe and each request should create a new instance of the filter.
+    /// </summary>
+    public class MessageLoggerFilter : MessageLoggerFilter<LogItem>
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
+        /// </summary>
+        public MessageLoggerFilter(MessageLoggerFilterOptions<LogItem> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
+        {
+
+        }
+    }
+    
+    /// <summary>
+    /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
@@ -23,7 +38,6 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        
         public MessageLoggerFilter(MessageLoggerFilterOptions<T> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
             _options = options;
