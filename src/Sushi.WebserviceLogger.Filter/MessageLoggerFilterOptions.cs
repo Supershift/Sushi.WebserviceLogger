@@ -12,20 +12,17 @@ namespace Sushi.WebserviceLogger.Filter
     /// Represents the configuration used to create a <see cref="MessageLoggerFilter{T}"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MessageLoggerFilterConfiguration<T> where T : LogItem, new()
+    public class MessageLoggerFilterOptions<T> where T : LogItem, new()
     {
         /// <summary>
-        /// Creates a new instance of <see cref="MessageLoggerFilterConfiguration{T}"/>.
+        /// Creates a new instance of <see cref="MessageLoggerFilterOptions{T}"/>.
         /// </summary>        
-        public MessageLoggerFilterConfiguration(LoggerConfiguration config) 
+        public MessageLoggerFilterOptions() 
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
             
-            LoggerConfig = config;
         }
 
-        public LoggerConfiguration LoggerConfig { get; }
+        
 
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
@@ -82,5 +79,10 @@ namespace Sushi.WebserviceLogger.Filter
         /// Called when the filter has parsed all data from request and response and is about to persist the data. 
         /// </summary>
         public Action<MessageLoggerFilterContext> OnLoggingDataCreated { get; set; }
+
+        /// <summary>
+        /// Gets or sets the json options used when serializing request and response objects.
+        /// </summary>
+        public System.Text.Json.JsonSerializerOptions JsonSerializerOptions { get; set; }   
     }
 }

@@ -52,7 +52,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("exception")]
-        public async Task<ActionResult> Exception(MyPayload request)
+        public ActionResult Exception(MyPayload request)
         {
             throw new Exception("Exception triggered by calling the exception API.");
         }
@@ -65,7 +65,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         [TypeFilter(typeof(ErrorFilter))]
         [HttpPost]
         [Route("internalServerError")]
-        public async Task<ActionResult> InternalServerError(MyPayload request)
+        public ActionResult InternalServerError(MyPayload request)
         {
             throw new Exception("Exception triggered by calling the internal server error API.");
         }
@@ -77,7 +77,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("badrequest")]
-        public async Task<ActionResult> BadRequest(MyPayload request)
+        public ActionResult BadRequest(MyPayload request)
         {
             if(string.IsNullOrWhiteSpace(request.Data))
             {

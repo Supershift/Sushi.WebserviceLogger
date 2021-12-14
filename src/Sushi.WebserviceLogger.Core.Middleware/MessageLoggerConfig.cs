@@ -13,17 +13,11 @@ namespace Sushi.WebserviceLogger.Core.Middleware
     {
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
-        /// </summary>
-        /// <param name="config"></param>
-        public MessageLoggerConfig(LoggerConfiguration config)
+        /// </summary>        
+        public MessageLoggerConfig()
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-
-            LoggerConfig = config;
+            
         }
-
-        public LoggerConfiguration LoggerConfig { get; }
 
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
