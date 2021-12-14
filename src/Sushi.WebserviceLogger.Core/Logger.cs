@@ -91,7 +91,7 @@ namespace Sushi.WebserviceLogger.Core
                 if (IndexNameCallback != null)
                     index = IndexNameCallback();
                 if (string.IsNullOrWhiteSpace(index))
-                    index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
+                    index = "webservicelogs";
 
                 //use persister to index item
                 await _persister.StoreLogItemAsync(logItem, index);                
