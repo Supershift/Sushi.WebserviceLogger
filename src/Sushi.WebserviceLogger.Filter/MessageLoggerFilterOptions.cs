@@ -31,8 +31,6 @@ namespace Sushi.WebserviceLogger.Filter
             
         }
 
-        
-
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
         /// This allows the caller to enrich the instance of <typeparamref name="T"/> or even return a new instance of <typeparamref name="T"/>.
@@ -66,8 +64,16 @@ namespace Sushi.WebserviceLogger.Filter
         /// Gets or sets a function that allows to set <see cref="LogItem.CorrelationID"/>. If not set, the correlation is set by default from <see cref="HttpContext.TraceIdentifier"/>.
         /// </summary>
         public Func<HttpContext, string> CorrelationIdCallback { get; set; }
-
         
+        /// <summary>
+        /// Gets or sets a list of paths that will not be processed by the filter.
+        /// </summary>
+        public List<string> ExcludePaths { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of paths that will not have their response and request body serialized.
+        /// </summary>
+        public List<string> ExcludeBodyPaths { get; set; }
 
         /// <summary>
         /// Called when the filter first executes and receives the request.        

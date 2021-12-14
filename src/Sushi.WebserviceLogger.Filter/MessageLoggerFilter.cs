@@ -99,9 +99,30 @@ namespace Sushi.WebserviceLogger.Filter
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             var started = DateTime.UtcNow;
+
+            // check if we need to process this request
+            if (_options.ExcludePaths != null)
+            {
+                if (_options.ExcludePaths.Any(path => _filterContext.HttpContext.Request.Path.StartsWithSegments(path)))
+                {
+                    _filterContext.StopLogging = true;
+                }
+            }
+
+            // determine if we need to serialize the body
+            if (_options.ExcludeBodyPaths != null)
+            {
+                if (_options.ExcludeBodyPaths.Any(path => _filterContext.HttpContext.Request.Path.StartsWithSegments(path)))
+                {
+                    _filterContext.SerializeBody = false;
+                }
+            }
+
+            // always invoke the first event
             _options.OnRequestReceived?.Invoke(_filterContext);
             await next();
 
+            // check if needs to continue executing
             if(_filterContext.StopLogging)
             {
                 return;
@@ -112,7 +133,7 @@ namespace Sushi.WebserviceLogger.Filter
             try
             {   
                 _filterContext.RequestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
-                if (_filterContext.RequestObject != null)
+                if (_filterContext.RequestObject != null && _filterContext.SerializeBody)
                 {
                     _filterContext.RequestData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.RequestObject, _options.JsonSerializerOptions);
                 }
@@ -127,7 +148,7 @@ namespace Sushi.WebserviceLogger.Filter
             try
             {
                 _filterContext.ResponseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
-                if (_filterContext.ResponseObject != null)
+                if (_filterContext.ResponseObject != null && _filterContext.SerializeBody)
                 {
                     _filterContext.ResponseData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.ResponseObject, _options.JsonSerializerOptions);
                 }
