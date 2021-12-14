@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -28,12 +29,13 @@ namespace Sushi.WebserviceLogger.Test
             string elasticUrl = config["elasticUrl"];
             string elasticUser = config["elasticUsername"];
             string elasticPassword = config["elasticPassword"];
-            ElasticConfig = new Core.ElasticConfiguration(elasticUrl, elasticUser, elasticPassword);
-            LoggerConfig = new Core.LoggerConfiguration(new Core.InProcessPersister(ElasticConfig));
-
+            var elasticSettings = new Nest.ConnectionSettings(new Uri(elasticUrl)).BasicAuthentication(elasticUser, elasticPassword).ThrowExceptions(true);
+            ElasticClient = new Nest.ElasticClient(elasticSettings);
+            Persister = new InProcessPersister(ElasticClient);
         }
 
-        public static Core.ElasticConfiguration ElasticConfig { get; private set; }
-        public static Core.LoggerConfiguration LoggerConfig { get; private set; }
+        
+        public static Nest.IElasticClient ElasticClient { get; private set; }
+        public static ILogItemPersister Persister { get; private set; }
     }
 }

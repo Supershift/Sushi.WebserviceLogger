@@ -2,7 +2,7 @@
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,13 +18,13 @@ namespace Sushi.WebserviceLogger.Filter
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddMessageLoggerFilter<T>(this IServiceCollection services, MessageLoggerFilterConfiguration<T> config) where T : LogItem, new()
-        {
-            // add the config
-            services.AddSingleton(config);
+        public static IServiceCollection AddMessageLoggerFilter<T>(this IServiceCollection services, MessageLoggerFilterOptions<T> options) where T : LogItem, new()
+        {   
+            services.AddHttpContextAccessor();
 
             // add the filter
-            services.AddScoped<MessageLoggerFilter<T>>();
+            services.AddScoped(s =>
+                ActivatorUtilities.CreateInstance<MessageLoggerFilter<T>>(s, options));
 
             return services;   
         }

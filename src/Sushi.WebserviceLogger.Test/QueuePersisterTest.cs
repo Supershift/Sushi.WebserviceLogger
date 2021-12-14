@@ -26,8 +26,7 @@ namespace Sushi.WebserviceLogger.Test
                 var myLogItem = new MyLogItem()
                 {
                     Id = Guid.NewGuid().ToString(),
-                    ProductID = Guid.NewGuid().ToString(),
-                    Created = DateTime.UtcNow,
+                    ProductID = Guid.NewGuid().ToString(),                    
                     Timestamp = DateTime.UtcNow
 
                 };
@@ -37,7 +36,7 @@ namespace Sushi.WebserviceLogger.Test
 
             //process items
             sw.Restart();
-            var processor = new QueueProcessorHostedService(queuePersister, Core.ElasticClientFactory.CreateClient(Initialization.ElasticConfig));
+            var processor = new QueueProcessorHostedService(queuePersister, Initialization.ElasticClient);
             processor.MaxBatchSize = itemCount;
             int itemsProcessed = await processor.ProcessQueueAsync();
             Console.WriteLine($"Persisting queue: {sw.Elapsed}");

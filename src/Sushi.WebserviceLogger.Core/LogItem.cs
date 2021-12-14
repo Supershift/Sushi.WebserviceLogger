@@ -22,10 +22,10 @@ namespace Sushi.WebserviceLogger.Core
         [Nest.Date(Name = "@timestamp")]
         public DateTime Timestamp { get; set; }
 
-        [Obsolete("Use Timestamp instead")]
         /// <summary>
         /// Gets or sets a value indicating when this <see cref="LogItem"/> was created.
         /// </summary>
+        [Obsolete("Use Timestamp instead")]        
         public DateTime Created { get; set; }
         /// <summary>
         /// Gets or sets the moment communication started. 

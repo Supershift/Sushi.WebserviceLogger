@@ -53,48 +53,34 @@ namespace Sushi.WebserviceLogger.SampleService
             services.AddSingleton(queuePersister);
             services.AddSingleton<ILogItemPersister>(queuePersister);
 
+            //register a background worker to write from queue to elastic
+            services.AddHostedService<QueueProcessorHostedService>();
+
             // register logger
             services.AddTransient(typeof(Sushi.WebserviceLogger.Core.Logger<>));
 
-            //register a background worker to write from queue to elastic
-            services.AddHostedService<QueueProcessorHostedService>();
-            
-            services.AddHttpContextAccessor();
-
-            var persister = new MockPersister()
-            {
-                Callback = (logItem, data) => Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(logItem))
-            };
-            var loggerConfig = new LoggerConfiguration(persister);
-            var filterConfig = new MessageLoggerFilterConfiguration<MyLogItem>(loggerConfig);
+            // register filter logging
+            var filterConfig = new MessageLoggerFilterOptions<MyLogItem>();
              
-            services.AddMessageLoggerFilter(filterConfig);            
+            services.AddMessageLoggerFilter(filterConfig);         
         }
 
-        
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, QueuePersister persister)
+        public void Configure(IApplicationBuilder app)
         {
             app.UseExceptionHandler("/error");
-
-            if (env.IsDevelopment())
-            {
-                //app.UseDeveloperExceptionPage();
-            }
-            else
-            {
                 
-                app.UseHsts();
-            }
+            app.UseHsts();
+            
             
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseStaticFiles();
 
-            //register message logger middleware
-            var loggerConfig = new LoggerConfiguration(persister);
-            var middlewareConfig = new MessageLoggerConfig<MyLogItem>(loggerConfig);
+            //register message logger middleware            
+            var middlewareConfig = new MessageLoggerConfig<MyLogItem>();
             middlewareConfig.AddLogItemCallback += (MyLogItem logItem, HttpContext context) =>
             {
                 logItem.MyKeyword = "my value";
@@ -108,8 +94,7 @@ namespace Sushi.WebserviceLogger.SampleService
             app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger(middlewareConfig));
 
             var mockPersister = new MockPersister();
-            var mockLoggerConfig = new LoggerConfiguration(mockPersister);
-            var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>(mockLoggerConfig);            
+            var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>();            
             app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
 
             //registere MVC middleware (executes Web API)

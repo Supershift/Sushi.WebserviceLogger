@@ -10,20 +10,20 @@ namespace Sushi.WebserviceLogger.Core.Middleware
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MessageLogger<T> where T : LogItem, new()
-    {
-        private readonly RequestDelegate _next;
-
+    {   
         /// <summary>
         /// Creates a new instance of <see cref="MessageLogger{T}"/>.
-        /// </summary>
-        /// <param name="next"></param>
-        /// <param name="config"></param>
-        public MessageLogger(RequestDelegate next, MessageLoggerConfig<T> config)
+        /// </summary>        
+        public MessageLogger(RequestDelegate next, MessageLoggerConfig<T> config, Logger<T> logger)
         {
             _next = next;
+            _logger = logger;
             Config = config;
             ContextType = ContextType.Server;            
         }
+
+        private readonly RequestDelegate _next;
+        private readonly Logger<T> _logger;
 
         /// <summary>
         /// Gets the instance of <see cref="MessageLoggerConfig{T}"/> used to configure the underlying <see cref="Logger{T}"/>.
@@ -45,10 +45,9 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             var requestStarted = DateTime.UtcNow;
             var request = context.Request;
             var response = context.Response;
-
-            var logger = new Logger<T>(Config.LoggerConfig.LogItemPersister);
+            
             //register correlation callback on logger
-            logger.CorrelationIdCallback = () =>
+            _logger.CorrelationIdCallback = () =>
             {
                 if (Config.CorrelationIdCallback != null)
                     return Config.CorrelationIdCallback(context);
@@ -57,7 +56,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             };
 
             //register logitem callback on logger
-            logger.AddLogItemCallback = (T logItem) =>
+            _logger.AddLogItemCallback = (T logItem) =>
             {
                 //call delegate logitem function if defined
                 if (Config.AddLogItemCallback != null)
@@ -73,7 +72,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             };
 
             //register exception callback on logger
-            logger.ExceptionCallback = (Exception e, T logItem) =>
+            _logger.ExceptionCallback = (Exception e, T logItem) =>
             {
                 if (Config.ExceptionCallback != null)
                     return Config.ExceptionCallback(e, logItem, context);
@@ -81,8 +80,8 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                     return true;
             };
 
-            logger.IndexNameCallback = Config.IndexNameCallback;
-            logger.MaxBodyContentLength = Config.MaxBodyContentLength;
+            _logger.IndexNameCallback = Config.IndexNameCallback;
+            _logger.MaxBodyContentLength = Config.MaxBodyContentLength;
 
             RequestData requestData = null;
             ResponseData responseData = null;
@@ -103,7 +102,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                     }
                     catch (Exception ex)
                     {
-                        if (logger.HandleException(ex, null))
+                        if (_logger.HandleException(ex, null))
                             throw;
                     }
 
@@ -127,7 +126,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                     }
                     catch (Exception ex)
                     {
-                        if (logger.HandleException(ex, null))
+                        if (_logger.HandleException(ex, null))
                             throw;
                     }
                 }
@@ -140,7 +139,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             //insert into elastic
             //logger has its own exception handling logic and does not need to be inside try/catch
             if (requestData != null && responseData != null)
-                await logger.AddLogItemAsync(requestData, responseData, ContextType);
+                await _logger.AddLogItemAsync(requestData, responseData, ContextType);
         }
     }
 }

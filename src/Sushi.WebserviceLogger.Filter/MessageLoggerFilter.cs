@@ -16,38 +16,37 @@ namespace Sushi.WebserviceLogger.Filter
     /// <typeparam name="T"></typeparam>
     public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
     {
-        protected MessageLoggerFilterConfiguration<T> Config { get; }
-        protected Logger<T> Logger { get; }
-        protected MessageLoggerFilterContext FilterContext { get; }
+        private MessageLoggerFilterOptions<T> _options;
+        private readonly Logger<T> _logger;
+        private readonly MessageLoggerFilterContext _filterContext;
         
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="httpContextAccessor"></param>
-        public MessageLoggerFilter(MessageLoggerFilterConfiguration<T> config, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
+        
+        public MessageLoggerFilter(MessageLoggerFilterOptions<T> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
-            Config = config;
-            Logger = logger;
+            _options = options;
+            _logger = logger;
 
-            if (Config.CorrelationIdCallback != null)
+            if (_options.CorrelationIdCallback != null)
             {
-                Logger.CorrelationIdCallback = () =>
+                _logger.CorrelationIdCallback = () =>
                 {
-                    return Config.CorrelationIdCallback(httpContextAccessor.HttpContext);
+                    return _options.CorrelationIdCallback(httpContextAccessor.HttpContext);
                 };
             }
             else
             {
-                Logger.CorrelationIdCallback = () => httpContextAccessor.HttpContext.TraceIdentifier;
+                _logger.CorrelationIdCallback = () => httpContextAccessor.HttpContext.TraceIdentifier;
             }
 
             //register logitem callback on logger
-            if (Config.AddLogItemCallback != null)
+            if (_options.AddLogItemCallback != null)
             {
-                Logger.AddLogItemCallback = (T logItem) =>
+                _logger.AddLogItemCallback = (T logItem) =>
                 {
-                    var callbacks = Config.AddLogItemCallback.GetInvocationList();
+                    var callbacks = _options.AddLogItemCallback.GetInvocationList();
                     foreach (var callback in callbacks)
                     {
                         if (logItem != null)
@@ -59,26 +58,26 @@ namespace Sushi.WebserviceLogger.Filter
             }
 
             //register exception callback on logger
-            if (Config.ExceptionCallback != null)
+            if (_options.ExceptionCallback != null)
             {
-                Logger.ExceptionCallback = (Exception e, T logItem) =>
+                _logger.ExceptionCallback = (Exception e, T logItem) =>
                 {
-                    return Config.ExceptionCallback(e, logItem, httpContextAccessor.HttpContext);
+                    return _options.ExceptionCallback(e, logItem, httpContextAccessor.HttpContext);
                 };
             }
 
-            Logger.IndexNameCallback = Config.IndexNameCallback;
-            Logger.MaxBodyContentLength = Config.MaxBodyContentLength;
+            _logger.IndexNameCallback = _options.IndexNameCallback;
+            _logger.MaxBodyContentLength = _options.MaxBodyContentLength;
 
-            FilterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext)
+            _filterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext)
             {
-                
+                MaxBodyContentLength = _logger.MaxBodyContentLength
             };
         }
 
         /// <summary>
-        /// Called at beginning of pipeline and calls <see cref="MessageLoggerFilterConfiguration{T}.OnRequestReceived"/>. 
-        /// After execution of the pipeline it gathers all data and calls the logger to persist the log data, calling <see cref="MessageLoggerFilterConfiguration{T}.OnLoggingDataCreated"/>.
+        /// Called at beginning of pipeline and calls <see cref="MessageLoggerFilterOptions{T}.OnRequestReceived"/>. 
+        /// After execution of the pipeline it gathers all data and calls the logger to persist the log data, calling <see cref="MessageLoggerFilterOptions{T}.OnLoggingDataCreated"/>.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="next"></param>
@@ -86,10 +85,10 @@ namespace Sushi.WebserviceLogger.Filter
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             var started = DateTime.UtcNow;
-            Config.OnRequestReceived?.Invoke(FilterContext);
+            _options.OnRequestReceived?.Invoke(_filterContext);
             await next();
 
-            if(FilterContext.StopLogging)
+            if(_filterContext.StopLogging)
             {
                 return;
             }
@@ -98,53 +97,54 @@ namespace Sushi.WebserviceLogger.Filter
             // read all request data
             try
             {   
-                FilterContext.RequestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
-                if (FilterContext.RequestObject != null)
+                _filterContext.RequestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
+                if (_filterContext.RequestObject != null)
                 {
-                    FilterContext.RequestData.Body.Data = System.Text.Json.JsonSerializer.Serialize(FilterContext.RequestObject);
+                    _filterContext.RequestData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.RequestObject, _options.JsonSerializerOptions);
                 }
             }
             catch (Exception ex)
             {
-                if (Logger.HandleException(ex, null))
+                if (_logger.HandleException(ex, null))
                     throw;
             }
 
             // read all response data
             try
             {
-                FilterContext.ResponseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
-                if (FilterContext.ResponseObject != null)
+                _filterContext.ResponseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
+                if (_filterContext.ResponseObject != null)
                 {
-                    FilterContext.ResponseData.Body.Data = System.Text.Json.JsonSerializer.Serialize(FilterContext.ResponseObject);
+                    _filterContext.ResponseData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.ResponseObject, _options.JsonSerializerOptions);
                 }
             }
             catch (Exception ex)
             {
-                if (Logger.HandleException(ex, null))
+                if (_logger.HandleException(ex, null))
                     throw;
             }
 
             // last event before logger is called
             try
             {
-                Config.OnLoggingDataCreated?.Invoke(FilterContext);
+                _options.OnLoggingDataCreated?.Invoke(_filterContext);
             }
             catch (Exception ex)
             {
-                if (Logger.HandleException(ex, null))
+                if (_logger.HandleException(ex, null))
                     throw;
             }
 
-            if(FilterContext.StopLogging)
+            if(_filterContext.StopLogging)
             {
                 return;
             }
 
             // this must run outside try/catch, because Logger has its own exception handling logic
-            if (FilterContext.RequestData != null && FilterContext.ResponseData != null)
+            if (_filterContext.RequestData != null && _filterContext.ResponseData != null)
             {
-                await Logger.AddLogItemAsync(FilterContext.RequestData, FilterContext.ResponseData, ContextType.Server);
+                _logger.MaxBodyContentLength = _filterContext.MaxBodyContentLength;
+                await _logger.AddLogItemAsync(_filterContext.RequestData, _filterContext.ResponseData, ContextType.Server);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Sushi.WebserviceLogger.Filter
         /// <param name="context"></param>
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (FilterContext.StopLogging)
+            if (_filterContext.StopLogging)
             {
                 return;
             }
@@ -166,24 +166,24 @@ namespace Sushi.WebserviceLogger.Filter
                 if (bodyParameter != null)
                 {   
                     var bodyObject = context.ActionArguments[bodyParameter.Name];
-                    FilterContext.RequestObject = bodyObject;     
+                    _filterContext.RequestObject = bodyObject;     
                 }
             }
             catch (Exception ex)
             {
-                if (Logger.HandleException(ex, null))
+                if (_logger.HandleException(ex, null))
                     throw;
             }
         }
 
         /// <summary>
-        /// Called after the action has executed, allows logged request body to be inspected and changed by <see cref="MessageLoggerFilterConfiguration{T}.OnRequestBodyRead"/> event.
+        /// Called after the action has executed, allows logged request body to be inspected and changed by <see cref="MessageLoggerFilterOptions{T}.OnRequestBodyRead"/> event.
         /// </summary>
         /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
         {
             // the action has been executed and the request object can now be safely passed to clients, because altering it cannot interfere with the action anymore
-            Config.OnRequestBodyRead?.Invoke(FilterContext);
+            _options.OnRequestBodyRead?.Invoke(_filterContext);
         }
 
         /// <summary>
@@ -196,12 +196,12 @@ namespace Sushi.WebserviceLogger.Filter
         }
 
         /// <summary>
-        /// Called when the result has been written to the response. Reads the result and calls <see cref="MessageLoggerFilterConfiguration{T}.OnResponseBodyRead"/>.
+        /// Called when the result has been written to the response. Reads the result and calls <see cref="MessageLoggerFilterOptions{T}.OnResponseBodyRead"/>.
         /// </summary>
         /// <param name="context"></param>
         public void OnResultExecuted(ResultExecutedContext context)
         {
-            if (FilterContext.StopLogging)
+            if (_filterContext.StopLogging)
             {
                 return;
             }
@@ -209,13 +209,13 @@ namespace Sushi.WebserviceLogger.Filter
             {
                 if (context.Result != null && context.Result is ObjectResult objectResult)
                 {
-                    FilterContext.ResponseObject = objectResult.Value;
+                    _filterContext.ResponseObject = objectResult.Value;
                 }
-                Config.OnResponseBodyRead?.Invoke(FilterContext);
+                _options.OnResponseBodyRead?.Invoke(_filterContext);
             }
             catch(Exception ex)
             {
-                if (Logger.HandleException(ex, null))
+                if (_logger.HandleException(ex, null))
                     throw;
             }
         }

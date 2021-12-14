@@ -26,29 +26,28 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log request made with <see cref="HttpClient"/>. 
         /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// An instance of <see cref="HttpClientHandler"/> is used as inner handler.
+        /// An instance of <see cref="SocketsHttpHandler"/> is used as inner handler.
         /// The instance can be provided as argument when creating an instance of <see cref="HttpClient"/>.
-        /// </summary>
-        /// <param name="configuration"></param>
+        /// </summary>        
         /// <returns></returns>
-        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(LoggerConfiguration configuration) where T : LogItem, new()
+        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(ILogItemPersister persister) where T : LogItem, new()
         {
-            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(configuration.LogItemPersister));
-            result.InnerHandler = new HttpClientHandler();
+            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(persister));
+            result.InnerHandler = new SocketsHttpHandler();
             return result;
         }
 
         /// <summary>
         /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log requests made with <see cref="HttpClient"/>. 
         /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// An instance of <see cref="HttpClientHandler"/> is used as inner handler.
+        /// An instance of <see cref="SocketsHttpHandler"/> is used as inner handler.
         /// The instance can be provided as argument when creating an instance of <see cref="HttpClient"/>.
         /// </summary>        
         /// <returns></returns>
         public static MessageHandler<T> CreateHttpClientMessageHandler<T>(Logger<T> logger) where T : LogItem, new()
         {
             var result = new MessageHandler<T>(ContextType.Client, logger);
-            result.InnerHandler = new HttpClientHandler();
+            result.InnerHandler = new SocketsHttpHandler();
             return result;
         }
     }

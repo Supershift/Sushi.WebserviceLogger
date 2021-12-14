@@ -43,5 +43,10 @@ namespace Sushi.WebserviceLogger.Filter
         /// Gets or sets an instance of <see cref="ResponseData"/> which will be logged.
         /// </summary>
         public ResponseData ResponseData { get; set; }
+
+        /// <summary>
+        /// Gets or sets the max length in characters of the response body and request body when logging. All characters above this limit are truncated.
+        /// </summary>
+        public int MaxBodyContentLength { get; set; }
     }
 }
