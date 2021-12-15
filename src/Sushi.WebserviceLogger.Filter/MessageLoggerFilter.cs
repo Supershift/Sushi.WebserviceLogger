@@ -197,7 +197,7 @@ namespace Sushi.WebserviceLogger.Filter
             {
                 // get request body data
                 // check if there is a parameter on the action that is filled from the body
-                var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
+                var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo?.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
                 if (bodyParameter != null)
                 {   
                     var bodyObject = context.ActionArguments[bodyParameter.Name];
