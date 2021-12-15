@@ -11,7 +11,22 @@ using System.Threading.Tasks;
 namespace Sushi.WebserviceLogger.Filter
 {
     /// <summary>
-    /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter (ie. do not use 
+    /// Filter to add webservice logging to Web API, using the default <see cref="LogItem"/>. 
+    /// The filter is not thread-safe and each request should create a new instance of the filter.
+    /// </summary>
+    public class MessageLoggerFilter : MessageLoggerFilter<LogItem>
+    {
+        /// <summary>
+        /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
+        /// </summary>
+        public MessageLoggerFilter(MessageLoggerFilterOptions<LogItem> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
+        {
+
+        }
+    }
+    
+    /// <summary>
+    /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
@@ -23,7 +38,6 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        
         public MessageLoggerFilter(MessageLoggerFilterOptions<T> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
             _options = options;
@@ -85,9 +99,30 @@ namespace Sushi.WebserviceLogger.Filter
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
             var started = DateTime.UtcNow;
+
+            // check if we need to process this request
+            if (_options.ExcludePaths != null)
+            {
+                if (_options.ExcludePaths.Any(path => _filterContext.HttpContext.Request.Path.StartsWithSegments(path)))
+                {
+                    _filterContext.StopLogging = true;
+                }
+            }
+
+            // determine if we need to serialize the body
+            if (_options.ExcludeBodyPaths != null)
+            {
+                if (_options.ExcludeBodyPaths.Any(path => _filterContext.HttpContext.Request.Path.StartsWithSegments(path)))
+                {
+                    _filterContext.SerializeBody = false;
+                }
+            }
+
+            // always invoke the first event
             _options.OnRequestReceived?.Invoke(_filterContext);
             await next();
 
+            // check if needs to continue executing
             if(_filterContext.StopLogging)
             {
                 return;
@@ -98,7 +133,7 @@ namespace Sushi.WebserviceLogger.Filter
             try
             {   
                 _filterContext.RequestData = await Utility.GetDataFromHttpRequestMessageAsync(context.HttpContext.Request, started, false);
-                if (_filterContext.RequestObject != null)
+                if (_filterContext.RequestObject != null && _filterContext.SerializeBody)
                 {
                     _filterContext.RequestData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.RequestObject, _options.JsonSerializerOptions);
                 }
@@ -113,7 +148,7 @@ namespace Sushi.WebserviceLogger.Filter
             try
             {
                 _filterContext.ResponseData = await Utility.GetDataFromHttpResponseMessageAsync(context.HttpContext.Response, DateTime.UtcNow, false);
-                if (_filterContext.ResponseObject != null)
+                if (_filterContext.ResponseObject != null && _filterContext.SerializeBody)
                 {
                     _filterContext.ResponseData.Body.Data = System.Text.Json.JsonSerializer.Serialize(_filterContext.ResponseObject, _options.JsonSerializerOptions);
                 }
@@ -162,7 +197,7 @@ namespace Sushi.WebserviceLogger.Filter
             {
                 // get request body data
                 // check if there is a parameter on the action that is filled from the body
-                var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
+                var bodyParameter = context.ActionDescriptor.Parameters?.FirstOrDefault(x => x.BindingInfo?.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body);
                 if (bodyParameter != null)
                 {   
                     var bodyObject = context.ActionArguments[bodyParameter.Name];

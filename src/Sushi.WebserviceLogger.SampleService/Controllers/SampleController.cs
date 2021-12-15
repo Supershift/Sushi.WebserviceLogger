@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sushi.WebserviceLogger.Core;
 using Sushi.WebserviceLogger.SampleService.Filters;
 
 namespace Sushi.WebserviceLogger.SampleService.Controllers
 {   
-    [ApiController]
     [Route("api/")]
     [Route("mock/")]
     [Route("filter/")]
@@ -21,6 +22,13 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
         public ActionResult Ping()
         {
             return Ok("hello world");
+        }
+
+        [HttpGet]
+        [Route("fromQuery")]
+        public IActionResult FromQuery([Required, MaxLength(256)] string input)
+        {
+            return Ok(input);
         }
 
         /// <summary>
