@@ -135,8 +135,8 @@ namespace Sushi.WebserviceLogger.Core
                     Url = requestData.Url,
                     Method = requestData.Method,
                     Body = requestData.Body,
-                    Headers = requestData.Headers,
-                    SoapAction =requestData.SoapAction
+                    Headers = requestData.Headers,                    
+                    Action = requestData.Action,
                 },
                 Response = new Response()
                 {
@@ -148,6 +148,14 @@ namespace Sushi.WebserviceLogger.Core
                 End = responseData.Started,
                 Service = requestData.Url?.Address
             };
+
+            // set service from template, path or address as fallback
+            if (!string.IsNullOrWhiteSpace(requestData.Action))
+                logItem.Service = requestData.Action;
+            else if (!string.IsNullOrWhiteSpace(requestData.Url?.Path))
+                logItem.Service = requestData.Url?.Path;
+            else
+                logItem.Service = requestData.Url?.Address;
 
             //set duration if request and response dates are known
             if (logItem.Start != null && logItem.End != null)

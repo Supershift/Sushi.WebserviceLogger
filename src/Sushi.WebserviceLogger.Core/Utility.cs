@@ -113,13 +113,21 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="started"></param>
         /// <returns></returns>
         public static async Task<RequestData> GetDataFromHttpRequestMessageAsync(HttpRequest request, DateTime started, bool readBody)
-        {
+        {   
             var result = new RequestData()
             {
                 Url = GetUrlFromRequest(request),
                 Method = request.Method,
                 Started = started
             };
+
+            // get endpoint template
+            var endpoint = request.HttpContext?.GetEndpoint() as Microsoft.AspNetCore.Routing.RouteEndpoint;
+            if (endpoint != null)
+            {
+                result.Action = endpoint.RoutePattern?.RawText;
+            }
+
             // get headers from request
             if (request.Headers != null)
             {
@@ -208,7 +216,8 @@ namespace Sushi.WebserviceLogger.Core
         /// <returns></returns>
         public static Url GetUrlFromRequest(HttpRequest request)
         {
-            return GetUrlFromString(request.GetDisplayUrl());            
+            var result = GetUrlFromString(request.GetDisplayUrl());
+            return result;
         }
 
         /// <summary>

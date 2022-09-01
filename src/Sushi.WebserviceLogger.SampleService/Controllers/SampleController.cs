@@ -97,12 +97,8 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
             }
         }
 
-
-
-
-
         [HttpGet]
-        [Route("order")]        
+        [Route("order/{orderID}")]        
         public ActionResult<OrderResponse> GetOrder(Guid orderID)
         {
             if (orderID == Guid.Empty)

@@ -15,25 +15,27 @@ services.AddApplicationInsightsTelemetry();
 services.AddControllers();
 
 //apply settings
-string elasticUrl = Configuration["ElasticUrl"];
-string elasticUsername = Configuration["ElasticUsername"];
-string elasticPassword = Configuration["ElasticPassword"];
-var elasticSettings = new Nest.ConnectionSettings(new Uri(elasticUrl))
-        .BasicAuthentication(elasticUsername, elasticPassword)
-        .ThrowExceptions(true);
+//string elasticUrl = Configuration["ElasticUrl"];
+//string elasticUsername = Configuration["ElasticUsername"];
+//string elasticPassword = Configuration["ElasticPassword"];
+//var elasticSettings = new Nest.ConnectionSettings(new Uri(elasticUrl))
+//        .BasicAuthentication(elasticUsername, elasticPassword)
+//        .ThrowExceptions(true);
 
-var elasticClient = new Nest.ElasticClient(elasticSettings);
+//var elasticClient = new Nest.ElasticClient(elasticSettings);
 
-// register elasticClient
-services.AddSingleton<Nest.IElasticClient>(elasticClient);
+//// register elasticClient
+//services.AddSingleton<Nest.IElasticClient>(elasticClient);
 
 // register queuepersister instance
-var queuePersister = new QueuePersister();
-services.AddSingleton(queuePersister);
-services.AddSingleton<ILogItemPersister>(queuePersister);
+//var queuePersister = new QueuePersister();
+//services.AddSingleton(queuePersister);
+//services.AddSingleton<ILogItemPersister>(queuePersister);
+var mockPersister = new MockPersister();
+services.AddSingleton<ILogItemPersister>(mockPersister);
 
 //register a background worker to write from queue to elastic
-services.AddHostedService<QueueProcessorHostedService>();
+//services.AddHostedService<QueueProcessorHostedService>();
 
 // register logger
 services.AddTransient(typeof(Sushi.WebserviceLogger.Core.Logger<>));
@@ -68,7 +70,7 @@ middlewareConfig.IndexNameCallback = () => "webservicelogs_test";
 
 app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger(middlewareConfig));
 
-var mockPersister = new MockPersister();
+
 var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>();
 app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
 
