@@ -1,6 +1,6 @@
 ﻿using Sushi.WebserviceLogger.Core;
-using Sushi.WebserviceLogger.Core.Middleware;
 using Sushi.WebserviceLogger.Filter;
+using Sushi.WebserviceLogger.Middleware;
 using Sushi.WebserviceLogger.Persisters;
 using Sushi.WebserviceLogger.SampleService;
 
