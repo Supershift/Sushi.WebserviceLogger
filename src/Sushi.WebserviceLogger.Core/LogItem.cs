@@ -77,7 +77,8 @@ namespace Sushi.WebserviceLogger.Core
         public string CorrelationID { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating which service was called. By default this is set with <see cref="Url.Address"/>.
+        /// Gets or sets a value indicating which service was called. By default this is set with <see cref="Request.Action"/> if defined, and otherwise <see cref="Url.Path"/> or 
+        /// <see cref="Url.Address"/>.
         /// </summary>
         public string Service { get; set; }
     }    
@@ -137,9 +138,9 @@ namespace Sushi.WebserviceLogger.Core
         public Body Body { get; set; }
 
         /// <summary>
-        /// Gets or sets the soap action if the request is part of a SOAP communication.
-        /// </summary>        
-        public string SoapAction { get; set; }
+        /// If it can be deduced, this contains the REST endpoint's template, ie. api/object/{id} instead of api/object/165745
+        /// </summary>
+        public string Action { get; set; }
     }
 
     /// <summary>
@@ -213,7 +214,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Gets or sets the query part of the url, e.g. ?name=smith&amp;country=nl.
         /// </summary>
-        public string Query { get; set; }
+        public string Query { get; set; }        
     }
 
     /// <summary>
