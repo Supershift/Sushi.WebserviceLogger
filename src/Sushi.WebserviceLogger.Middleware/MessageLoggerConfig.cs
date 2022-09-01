@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sushi.WebserviceLogger.Core.Middleware
+namespace Sushi.WebserviceLogger.Middleware
 {
     /// <summary>
     /// Represents the configuration used to create a <see cref="Logger"/> by the <see cref="MessageLogger{T}"/> middleware.
@@ -16,7 +17,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         /// </summary>        
         public MessageLoggerConfig()
         {
-            
+
         }
 
         /// <summary>

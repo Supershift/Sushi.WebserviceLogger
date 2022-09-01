@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Threading.Tasks;
 
-namespace Sushi.WebserviceLogger.Core.Middleware
+namespace Sushi.WebserviceLogger.Middleware
 {
     /// <summary>
     /// Middleware to add webservice logging to the application pipeline.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MessageLogger<T> where T : LogItem, new()
-    {   
+    {
         /// <summary>
         /// Creates a new instance of <see cref="MessageLogger{T}"/>.
         /// </summary>        
@@ -19,7 +20,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             _next = next;
             _logger = logger;
             Config = config;
-            ContextType = ContextType.Server;            
+            ContextType = ContextType.Server;
         }
 
         private readonly RequestDelegate _next;
@@ -33,7 +34,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
         /// <summary>
         /// Gets the current <see cref="ContextType"/>.
         /// </summary>
-        public ContextType ContextType { get; protected set; }        
+        public ContextType ContextType { get; protected set; }
 
         /// <summary>
         /// Invokes the middleware, which first enables bufffering on the request, then calls the next item in pipeline and then logs both the request and response.
@@ -45,7 +46,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             var requestStarted = DateTime.UtcNow;
             var request = context.Request;
             var response = context.Response;
-            
+
             //register correlation callback on logger
             _logger.CorrelationIdCallback = () =>
             {
@@ -56,7 +57,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             };
 
             //register logitem callback on logger
-            _logger.AddLogItemCallback = (T logItem) =>
+            _logger.AddLogItemCallback = (logItem) =>
             {
                 //call delegate logitem function if defined
                 if (Config.AddLogItemCallback != null)
@@ -72,7 +73,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
             };
 
             //register exception callback on logger
-            _logger.ExceptionCallback = (Exception e, T logItem) =>
+            _logger.ExceptionCallback = (e, logItem) =>
             {
                 if (Config.ExceptionCallback != null)
                     return Config.ExceptionCallback(e, logItem, context);
@@ -88,7 +89,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
 
             //we're going to replace the response's stream in a next step
             var originalResponseStream = response.Body;
-            
+
             try
             {
                 using (var responseBuffer = new System.IO.MemoryStream())
@@ -98,7 +99,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                         //load the request's stream into a buffer, to allow multiple reads
                         request.EnableBuffering();
                         //response does not allow this, so we have to create a custom buffer                        
-                        response.Body = responseBuffer;                        
+                        response.Body = responseBuffer;
                     }
                     catch (Exception ex)
                     {
@@ -118,7 +119,7 @@ namespace Sushi.WebserviceLogger.Core.Middleware
                         responseData = await Utility.GetDataFromHttpResponseMessageAsync(response, DateTime.UtcNow, true);
 
                         //copy contents of the buffer to the response (if the mem stream was used)
-                        if(responseBuffer.Length > 0)
+                        if (responseBuffer.Length > 0)
                         {
                             responseBuffer.Position = 0;
                             await responseBuffer.CopyToAsync(originalResponseStream);

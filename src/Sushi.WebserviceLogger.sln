@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30104.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Core", "Sushi.WebserviceLogger.Core\Sushi.WebserviceLogger.Core.csproj", "{99627BAF-1007-41FA-8755-6793648F35E2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Core.Middleware", "Sushi.WebserviceLogger.Core.Middleware\Sushi.WebserviceLogger.Core.Middleware.csproj", "{7F969B65-0C7C-44F0-9D97-7B7799A143CE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.SampleService", "Sushi.WebserviceLogger.SampleService\Sushi.WebserviceLogger.SampleService.csproj", "{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}"
 EndProject
@@ -27,7 +25,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.WebserviceLogger.Filter", "Sushi.WebserviceLogger.Filter\Sushi.WebserviceLogger.Filter.csproj", "{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Filter", "Sushi.WebserviceLogger.Filter\Sushi.WebserviceLogger.Filter.csproj", "{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.WebserviceLogger.Middleware", "Sushi.WebserviceLogger.Middleware\Sushi.WebserviceLogger.Middleware.csproj", "{45C72BBA-B2A9-4548-A7C4-0D86F1848162}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +39,6 @@ Global
 		{99627BAF-1007-41FA-8755-6793648F35E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99627BAF-1007-41FA-8755-6793648F35E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99627BAF-1007-41FA-8755-6793648F35E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7F969B65-0C7C-44F0-9D97-7B7799A143CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7F969B65-0C7C-44F0-9D97-7B7799A143CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7F969B65-0C7C-44F0-9D97-7B7799A143CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7F969B65-0C7C-44F0-9D97-7B7799A143CE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8827CD7A-3A0D-4F89-8936-13BA3B4108B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,6 +55,10 @@ Global
 		{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
