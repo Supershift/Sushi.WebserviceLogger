@@ -36,12 +36,12 @@ namespace Sushi.WebserviceLogger.Test
 
             //process items
             sw.Restart();
-            var processor = new QueueProcessorHostedService(queuePersister, Initialization.ElasticClient);
-            processor.MaxBatchSize = itemCount;
+            var processor = new QueueProcessorHostedService(queuePersister, Initialization.ElasticClient,
+                new Microsoft.Extensions.Options.OptionsWrapper<QueueProcessorOptions>(new QueueProcessorOptions() { MaxBatchSize = itemCount }));            
             int itemsProcessed = await processor.ProcessQueueAsync();
             Console.WriteLine($"Persisting queue: {sw.Elapsed}");
-            Console.WriteLine(itemsProcessed);            
-            Assert.AreEqual(itemsProcessed, processor.MaxBatchSize);
+            Console.WriteLine(itemsProcessed);
+            Assert.AreEqual(itemsProcessed, itemCount);
         }
     }
 }

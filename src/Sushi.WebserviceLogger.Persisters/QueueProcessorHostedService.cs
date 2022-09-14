@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,30 +17,22 @@ namespace Sushi.WebserviceLogger.Persisters
         /// <summary>
         /// Creates a new instance of <see cref="QueueProcessorHostedService"/> which can be used to process logitems for the provided <paramref name="persister"/>.
         /// </summary>        
-        public QueueProcessorHostedService(QueuePersister persister, Nest.IElasticClient elasticClient)
+        public QueueProcessorHostedService(QueuePersister persister, Nest.IElasticClient elasticClient, IOptions<QueueProcessorOptions> options)
         {
             Persister = persister;
             _elasticClient = elasticClient;
+            _options = options.Value;
         }
 
         private Nest.IElasticClient _elasticClient;
+        private readonly QueueProcessorOptions _options;
 
-        /// <summary>
-        /// Gets or sets a value indicating how much time is spent waiting if the persister's buffer is empty.
-        /// </summary>
-        public TimeSpan WaitTime { get; set; } = TimeSpan.FromSeconds(1);
+
         /// <summary>
         /// Gets the persister associated with this processor.
         /// </summary>
         public QueuePersister Persister { get; }
-        /// <summary>
-        /// Gets or sets the maximum number of items inserted into Elastic in one bulk operation.
-        /// </summary>
-        public int MaxBatchSize { get; set; } = 100;
-        /// <summary>
-        /// Gets or sets a delegate which is called when an <see cref="Exception"/> is encountered while performing <see cref="ExecuteAsync(CancellationToken)"/>.
-        /// </summary>
-        public Action<Exception> ExceptionDelegate { get; set; }
+        
         /// <summary>
         /// Continously writes items from a <see cref="QueuePersister"/> to Elastic until cancellation is requested.
         /// </summary>
@@ -53,13 +46,13 @@ namespace Sushi.WebserviceLogger.Persisters
                 {
                     processedItems = await ProcessQueueAsync();
                     if (processedItems == 0)
-                        await Task.Delay(WaitTime).ConfigureAwait(false);
+                        await Task.Delay(_options.WaitTime).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     try
                     {
-                        ExceptionDelegate?.Invoke(ex);
+                        _options.ExceptionDelegate?.Invoke(ex);
                     }
                     catch { }
                 }
@@ -82,7 +75,7 @@ namespace Sushi.WebserviceLogger.Persisters
             var bulkDescriptor = new Nest.BulkDescriptor();
 
             int itemCount = 0;
-            for (int i = 0; i < MaxBatchSize; i++)
+            for (int i = 0; i < _options.MaxBatchSize; i++)
             {
                 //get item from queue                
                 var item = Persister.Dequeue();
