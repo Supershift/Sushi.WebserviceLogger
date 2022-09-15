@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        public MessageLoggerFilter(MessageLoggerFilterOptions<LogItem> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
+        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<LogItem>> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
         {
 
         }
@@ -38,9 +39,9 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        public MessageLoggerFilter(MessageLoggerFilterOptions<T> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
+        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<T>> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
-            _options = options;
+            _options = options.Value;
             _logger = logger;
 
             if (_options.CorrelationIdCallback != null)

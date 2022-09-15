@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Core
 {
+    //TODO: Change to 'ClientMessageHandler', replace factory methods with Dependency Injection.
+    
     /// <summary>
     /// Implementation of <see cref="DelegatingHandler"/> that can be added to a pipeline to generate <see cref="LogItem"/>
     /// Use 'create' factory methods to create instances for specific scenario's.

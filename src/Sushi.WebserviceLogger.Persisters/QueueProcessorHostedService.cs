@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +19,14 @@ namespace Sushi.WebserviceLogger.Persisters
         /// <summary>
         /// Creates a new instance of <see cref="QueueProcessorHostedService"/> which can be used to process logitems for the provided <paramref name="persister"/>.
         /// </summary>        
+        [ActivatorUtilitiesConstructor]
+        public QueueProcessorHostedService(QueuePersister persister, ElasticClientFactory elasticClientFactory, IOptions<QueueProcessorOptions> options)
+        {
+            Persister = persister;
+            _elasticClient = elasticClientFactory.GetClient(Common.ElasticClientName);
+            _options = options.Value;
+        }
+
         public QueueProcessorHostedService(QueuePersister persister, Nest.IElasticClient elasticClient, IOptions<QueueProcessorOptions> options)
         {
             Persister = persister;
