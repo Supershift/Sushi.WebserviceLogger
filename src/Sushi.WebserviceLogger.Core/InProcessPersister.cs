@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,15 @@ namespace Sushi.WebserviceLogger.Core
     /// </summary>
     public class InProcessPersister : ILogItemPersister
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="InProcessPersister"/>.
+        /// </summary>        
+        [ActivatorUtilitiesConstructor]
+        public InProcessPersister(ElasticClientFactory elasticClientFactory)
+        {
+            _elasticClient = elasticClientFactory.GetClient(Common.ElasticClientName);
+        }
+
         /// <summary>
         /// Creates a new instance of <see cref="InProcessPersister"/>.
         /// </summary>        

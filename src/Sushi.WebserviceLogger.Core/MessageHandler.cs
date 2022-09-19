@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Core
 {
+    //TODO: Change to 'ClientMessageHandler', replace factory methods with Dependency Injection.
+    
     /// <summary>
     /// Implementation of <see cref="DelegatingHandler"/> that can be added to a pipeline to generate <see cref="LogItem"/>
     /// Use 'create' factory methods to create instances for specific scenario's.
@@ -21,20 +23,6 @@ namespace Sushi.WebserviceLogger.Core
         /// <param name="logger"></param>
         public MessageHandler(ContextType contextType, Logger<LogItem> logger) : base(contextType, logger)
         {
-        }
-
-        /// <summary>
-        /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log request made with <see cref="HttpClient"/>. 
-        /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// An instance of <see cref="SocketsHttpHandler"/> is used as inner handler.
-        /// The instance can be provided as argument when creating an instance of <see cref="HttpClient"/>.
-        /// </summary>        
-        /// <returns></returns>
-        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(ILogItemPersister persister) where T : LogItem, new()
-        {
-            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(persister));
-            result.InnerHandler = new SocketsHttpHandler();
-            return result;
         }
 
         /// <summary>

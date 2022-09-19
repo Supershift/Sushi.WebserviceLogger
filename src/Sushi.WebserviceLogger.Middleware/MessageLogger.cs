@@ -15,21 +15,15 @@ namespace Sushi.WebserviceLogger.Middleware
         /// <summary>
         /// Creates a new instance of <see cref="MessageLogger{T}"/>.
         /// </summary>        
-        public MessageLogger(RequestDelegate next, MessageLoggerConfig<T> config, Logger<T> logger)
+        public MessageLogger(RequestDelegate next, Logger<T> logger)
         {
             _next = next;
-            _logger = logger;
-            Config = config;
+            _logger = logger;            
             ContextType = ContextType.Server;
         }
 
         private readonly RequestDelegate _next;
         private readonly Logger<T> _logger;
-
-        /// <summary>
-        /// Gets the instance of <see cref="MessageLoggerConfig{T}"/> used to configure the underlying <see cref="Logger{T}"/>.
-        /// </summary>
-        public MessageLoggerConfig<T> Config { get; private set; }
 
         /// <summary>
         /// Gets the current <see cref="ContextType"/>.
@@ -46,43 +40,6 @@ namespace Sushi.WebserviceLogger.Middleware
             var requestStarted = DateTime.UtcNow;
             var request = context.Request;
             var response = context.Response;
-
-            //register correlation callback on logger
-            _logger.CorrelationIdCallback = () =>
-            {
-                if (Config.CorrelationIdCallback != null)
-                    return Config.CorrelationIdCallback(context);
-                else
-                    return null;
-            };
-
-            //register logitem callback on logger
-            _logger.AddLogItemCallback = (logItem) =>
-            {
-                //call delegate logitem function if defined
-                if (Config.AddLogItemCallback != null)
-                {
-                    var callbacks = Config.AddLogItemCallback.GetInvocationList();
-                    foreach (var callback in callbacks)
-                    {
-                        if (logItem != null)
-                            logItem = callback.DynamicInvoke(logItem, context) as T;
-                    }
-                }
-                return logItem;
-            };
-
-            //register exception callback on logger
-            _logger.ExceptionCallback = (e, logItem) =>
-            {
-                if (Config.ExceptionCallback != null)
-                    return Config.ExceptionCallback(e, logItem, context);
-                else
-                    return true;
-            };
-
-            _logger.IndexNameCallback = Config.IndexNameCallback;
-            _logger.MaxBodyContentLength = Config.MaxBodyContentLength;
 
             RequestData requestData = null;
             ResponseData responseData = null;

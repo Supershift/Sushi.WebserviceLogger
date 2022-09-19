@@ -14,6 +14,10 @@ services.AddApplicationInsightsTelemetry();
 
 services.AddControllers();
 
+// register webservice logging
+services.AddWebserviceLogging<LogItem>(o => { });
+services.AddWebserviceLogging<MyLogItem>(o => { });
+
 //apply settings
 //string elasticUrl = Configuration["ElasticUrl"];
 //string elasticUsername = Configuration["ElasticUsername"];
@@ -28,22 +32,15 @@ services.AddControllers();
 //services.AddSingleton<Nest.IElasticClient>(elasticClient);
 
 // register queuepersister instance
-//var queuePersister = new QueuePersister();
-//services.AddSingleton(queuePersister);
-//services.AddSingleton<ILogItemPersister>(queuePersister);
 var mockPersister = new MockPersister();
 services.AddSingleton<ILogItemPersister>(mockPersister);
 
 //register a background worker to write from queue to elastic
-//services.AddHostedService<QueueProcessorHostedService>();
-
-// register logger
-services.AddTransient(typeof(Sushi.WebserviceLogger.Core.Logger<>));
+var inMemoryClient = new Nest.ElasticClient(new Nest.ConnectionSettings(new Elasticsearch.Net.InMemoryConnection()));
+services.AddQueuePersister(() => inMemoryClient);
 
 // register filter logging
-var filterConfig = new MessageLoggerFilterOptions<MyLogItem>();
-
-services.AddMessageLoggerFilter(filterConfig);
+services.AddMessageLoggerFilter<MyLogItem>(o => { });
 
 // Configure the HTTP request pipeline.
 var app = builder.Build();
@@ -57,22 +54,13 @@ app.UseRouting();
 app.UseStaticFiles();
 
 //register message logger middleware            
-var middlewareConfig = new MessageLoggerConfig<MyLogItem>();
-middlewareConfig.AddLogItemCallback += (MyLogItem logItem, HttpContext context) =>
-{
-    logItem.MyKeyword = "my value";
-    return logItem;
-};
-middlewareConfig.IndexNameCallback = () => "webservicelogs_test";
 //app.UseMiddleware<MessageLogger<LogItem>>(loggingConfig);
 //app.UseMessageLogger<LogItem>(loggingConfig);
 //app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>(loggingConfig));
 
-app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger(middlewareConfig));
+app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>());
 
-
-var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>();
-app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
+app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger<LogItem>());
 
 app.MapControllers();
 

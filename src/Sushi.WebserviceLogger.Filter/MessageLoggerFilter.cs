@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        public MessageLoggerFilter(MessageLoggerFilterOptions<LogItem> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
+        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<LogItem>> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
         {
 
         }
@@ -38,55 +39,13 @@ namespace Sushi.WebserviceLogger.Filter
         /// <summary>
         /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
         /// </summary>
-        public MessageLoggerFilter(MessageLoggerFilterOptions<T> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
+        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<T>> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
-            _options = options;
+            _options = options.Value;
             _logger = logger;
 
-            if (_options.CorrelationIdCallback != null)
-            {
-                _logger.CorrelationIdCallback = () =>
-                {
-                    return _options.CorrelationIdCallback(httpContextAccessor.HttpContext);
-                };
-            }
-            else
-            {
-                _logger.CorrelationIdCallback = () => httpContextAccessor.HttpContext.TraceIdentifier;
-            }
 
-            //register logitem callback on logger
-            if (_options.AddLogItemCallback != null)
-            {
-                _logger.AddLogItemCallback = (T logItem) =>
-                {
-                    var callbacks = _options.AddLogItemCallback.GetInvocationList();
-                    foreach (var callback in callbacks)
-                    {
-                        if (logItem != null)
-                            logItem = callback.DynamicInvoke(logItem, httpContextAccessor.HttpContext) as T;
-                    }
-
-                    return logItem;
-                };
-            }
-
-            //register exception callback on logger
-            if (_options.ExceptionCallback != null)
-            {
-                _logger.ExceptionCallback = (Exception e, T logItem) =>
-                {
-                    return _options.ExceptionCallback(e, logItem, httpContextAccessor.HttpContext);
-                };
-            }
-
-            _logger.IndexNameCallback = _options.IndexNameCallback;
-            _logger.MaxBodyContentLength = _options.MaxBodyContentLength;
-
-            _filterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext)
-            {
-                MaxBodyContentLength = _logger.MaxBodyContentLength
-            };
+            _filterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext);
         }
 
         /// <summary>
@@ -177,8 +136,7 @@ namespace Sushi.WebserviceLogger.Filter
 
             // this must run outside try/catch, because Logger has its own exception handling logic
             if (_filterContext.RequestData != null && _filterContext.ResponseData != null)
-            {
-                _logger.MaxBodyContentLength = _filterContext.MaxBodyContentLength;
+            {   
                 await _logger.AddLogItemAsync(_filterContext.RequestData, _filterContext.ResponseData, ContextType.Server);
             }
         }

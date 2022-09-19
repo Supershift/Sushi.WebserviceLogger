@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
@@ -30,10 +31,11 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var logger = new Logger(Initialization.Persister)
+            var options = new LoggerOptions()
             {
                 IndexNameCallback = () => "webservicelogs-test"
             };
+            var logger = new Logger(Initialization.Persister, options);
 
             var requestData = new Core.RequestData()
             {
@@ -70,8 +72,11 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var logger = new Core.Logger<MyLogItem>(Initialization.Persister);
-            logger.AddLogItemCallback = MyDelegate;
+            var options = new LoggerOptions<MyLogItem>()
+            {
+                AddLogItemCallback = MyDelegate
+            };
+            var logger = new Core.Logger<MyLogItem>(Initialization.Persister, options);            
 
             var requestData = new Core.RequestData()
             {
@@ -107,9 +112,13 @@ namespace Sushi.WebserviceLogger.Test
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
             string correlationID= Guid.NewGuid().ToString();
-            var logger = new Logger<MyLogItem>(Initialization.Persister);
-            logger.AddLogItemCallback = MyDelegate;
-            logger.CorrelationIdCallback = () => { return correlationID; };
+            var options = new LoggerOptions<MyLogItem>()
+            {
+                AddLogItemCallback = MyDelegate,
+                CorrelationIdCallback = (c) => { return correlationID; }
+            };
+            var logger = new Logger<MyLogItem>(Initialization.Persister, options);
+            
             var requestData = new Core.RequestData()
             {
                 Body = new Core.Body()
@@ -146,11 +155,14 @@ namespace Sushi.WebserviceLogger.Test
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
             string correlationID = Guid.NewGuid().ToString();
-            var logger = new Logger<MyLogItem>(Initialization.Persister);
-            logger.AddLogItemCallback += Block;
-            logger.AddLogItemCallback += MyDelegate;
-            logger.ExceptionCallback += ExceptionCallback;            
-            
+            var options = new LoggerOptions<MyLogItem>()
+            {
+                ExceptionCallback = this.ExceptionCallback
+        };
+            options.AddLogItemCallback += Block;
+            options.AddLogItemCallback += MyDelegate;
+            var logger = new Logger<MyLogItem>(Initialization.Persister, options);
+          
             var requestData = new Core.RequestData()
             {
                 Body = new Core.Body()
@@ -181,18 +193,18 @@ namespace Sushi.WebserviceLogger.Test
             Assert.IsNull(result);
         }
 
-        public MyLogItem MyDelegate(MyLogItem logItem)
+        public MyLogItem MyDelegate(MyLogItem logItem, HttpContext context)
         {
             logItem.ProductID = "test";
             return logItem;
         }
 
-        public MyLogItem Block(MyLogItem logItem)
+        public MyLogItem Block(MyLogItem logItem, HttpContext context)
         {
             return null;
         }
 
-        public bool ExceptionCallback(Exception exception, MyLogItem logItem)
+        public bool ExceptionCallback(Exception exception, MyLogItem logItem, HttpContext context)
         {
             // log the exception
             Console.WriteLine(exception);
