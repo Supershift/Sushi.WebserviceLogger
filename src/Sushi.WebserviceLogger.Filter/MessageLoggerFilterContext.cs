@@ -45,11 +45,6 @@ namespace Sushi.WebserviceLogger.Filter
         public ResponseData ResponseData { get; set; }
 
         /// <summary>
-        /// Gets or sets the max length in characters of the response body and request body when logging. All characters above this limit are truncated.
-        /// </summary>
-        public int MaxBodyContentLength { get; set; }
-
-        /// <summary>
         /// If set to true, the body objects of the request and response will be serialized. True is the default value.
         /// </summary>
         public bool SerializeBody { get; set; } = true;

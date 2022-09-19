@@ -14,9 +14,10 @@ namespace Sushi.WebserviceLogger.Test
         public static readonly System.Net.Http.HttpClient Client;
 
         static ClientTest()
-        {   
-            var logger = MessageHandler.CreateHttpClientMessageHandler<LogItem>(Initialization.Persister);
-            Client = new System.Net.Http.HttpClient(logger);            
+        {
+            var logger = new Logger<LogItem>(Initialization.Persister, new LoggerOptions<LogItem>());
+            var handler = MessageHandler.CreateHttpClientMessageHandler<LogItem>(logger);
+            Client = new System.Net.Http.HttpClient(handler);            
         }
 
         public string ServiceBaseUrl = "http://localhost/Sushi.WebserviceLogger.SampleService/api/";

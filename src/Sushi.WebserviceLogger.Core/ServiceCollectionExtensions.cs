@@ -11,10 +11,10 @@ namespace Sushi.WebserviceLogger.Core
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddWebserviceLogging(this IServiceCollection services)
+        public static IServiceCollection AddWebserviceLogging<T>(this IServiceCollection services, Action<LoggerOptions<T>> configureOptions) where T : LogItem, new()
         {
-            services.TryAddTransient(typeof(Logger<>));
-            
+            services.TryAddTransient<Logger<T>>();
+            services.Configure(configureOptions);
             return services;
         }
     }

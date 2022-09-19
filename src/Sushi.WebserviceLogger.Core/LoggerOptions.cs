@@ -1,25 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Sushi.WebserviceLogger.Core;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Sushi.WebserviceLogger.Middleware
+namespace Sushi.WebserviceLogger.Core
 {
-    /// <summary>
-    /// Represents the configuration used to create a <see cref="Logger"/> by the <see cref="MessageLogger{T}"/> middleware.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class MessageLoggerConfig<T> where T : LogItem, new()
+    public class LoggerOptions : LoggerOptions<LogItem>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="MessageLoggerConfig{T}"/>.
-        /// </summary>        
-        public MessageLoggerConfig()
-        {
 
-        }
+    }
 
+
+    public class LoggerOptions<T> where T : LogItem, new()
+    {
         /// <summary>
         /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
         /// This allows the caller to enrich the instance of <typeparamref name="T"/> or even return a new instance of <typeparamref name="T"/>.
@@ -38,11 +29,9 @@ namespace Sushi.WebserviceLogger.Middleware
         public Func<Exception, T, HttpContext, bool> ExceptionCallback { get; set; }
 
         /// <summary>
-        /// Gets or sets a function that will be called to determine indexname. 
-        /// The return value will be used as index name. 
-        /// The default index name is 'webservicelogs'
+        /// Gets or sets a function that allows to set <see cref="LogItem.CorrelationID"/>. 
         /// </summary>
-        public Func<string> IndexNameCallback { get; set; }
+        public Func<HttpContext, string> CorrelationIdCallback { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum alloweed length of <see cref="Body.Data"/>. Any characters above the limit will be truncated before inserting into ElasticSearch.        
@@ -50,13 +39,10 @@ namespace Sushi.WebserviceLogger.Middleware
         public int MaxBodyContentLength { get; set; } = 4000;
 
         /// <summary>
-        /// Gets or sets a function that allows to set <see cref="LogItem.CorrelationID"/>. 
+        /// Gets or sets a function that will be called to determine indexname. 
+        /// The return value will be used as index name. 
+        /// The default index name is 'webservicelogs'
         /// </summary>
-        public Func<HttpContext, string> CorrelationIdCallback { get; set; }
-
-        /// <summary>
-        /// Gets or sets the persister used to store logitems by the <see cref="Logger"/>.
-        /// </summary>
-        public ILogItemPersister Persister { get; private set; }
+        public Func<string> IndexNameCallback { get; set; }
     }
 }

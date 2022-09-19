@@ -15,7 +15,8 @@ services.AddApplicationInsightsTelemetry();
 services.AddControllers();
 
 // register webservice logging
-services.AddWebserviceLogging();
+services.AddWebserviceLogging<LogItem>(o => { });
+services.AddWebserviceLogging<MyLogItem>(o => { });
 
 //apply settings
 //string elasticUrl = Configuration["ElasticUrl"];
@@ -53,22 +54,13 @@ app.UseRouting();
 app.UseStaticFiles();
 
 //register message logger middleware            
-var middlewareConfig = new MessageLoggerConfig<MyLogItem>();
-middlewareConfig.AddLogItemCallback += (MyLogItem logItem, HttpContext context) =>
-{
-    logItem.MyKeyword = "my value";
-    return logItem;
-};
-middlewareConfig.IndexNameCallback = () => "webservicelogs_test";
 //app.UseMiddleware<MessageLogger<LogItem>>(loggingConfig);
 //app.UseMessageLogger<LogItem>(loggingConfig);
 //app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>(loggingConfig));
 
-app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger(middlewareConfig));
+app.UseWhen(x => x.Request.Path.Value?.StartsWith("/api") == true, a => a.UseMessageLogger<LogItem>());
 
-
-var mockMiddlewareConfig = new MessageLoggerConfig<LogItem>();
-app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger(mockMiddlewareConfig));
+app.UseWhen(x => x.Request.Path.Value?.StartsWith("/mock") == true, a => a.UseMessageLogger<LogItem>());
 
 app.MapControllers();
 

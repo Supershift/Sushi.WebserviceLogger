@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,62 +18,43 @@ namespace Sushi.WebserviceLogger.Core
         /// Creates an instance of <see cref="Logger"/>.
         /// </summary>
         /// <param name="persister"></param>
-        public Logger(ILogItemPersister persister) : base(persister)
+        public Logger(ILogItemPersister persister, LoggerOptions<LogItem> options, IHttpContextAccessor httpContextAccessor = null) : base(persister, options)
         {
 
         }
-    }
-         
+    }    
     
     /// <summary>
     /// Sends request/response data to ElasticSearch using <typeparamref name="T"/>.
     /// </summary>
     public class Logger<T> where T : LogItem, new()
-    {   
+    {
+        private readonly ILogItemPersister _persister;
+        private readonly LoggerOptions<T> _options;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         /// <summary>
         /// Creates an instance of <see cref="Logger{T}"/>.
         /// </summary>
         /// <param name="persister"></param>
-        public Logger(ILogItemPersister persister)
+        [ActivatorUtilitiesConstructor]
+        public Logger(ILogItemPersister persister, IOptionsMonitor<LoggerOptions<T>> options, IHttpContextAccessor httpContextAccessor = null)
         {
             _persister = persister;
+            _options = options.Get(string.Empty);
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        private readonly ILogItemPersister _persister;
-        
         /// <summary>
-        /// Gets or sets a function that is called just before an instance of <typeparamref name="T"/> is inserted into Elastic.         
-        /// This allows the caller to enrich the instance of <typeparamref name="T"/> or even return a new instance of <typeparamref name="T"/>.
-        /// If NULL is returned by the function, further processing stops and nothing is inserted into Elastic.
-        /// Multiple functions can be chained by using the += operator. Chained functions are called in order of adding. 
-        /// If one of the functions returns NULL, execution of the chain stops.
+        /// Creates an instance of <see cref="Logger{T}"/>.
         /// </summary>
-        public Func<T,T> AddLogItemCallback { get; set; }
-        
-        /// <summary>
-        /// Gets or sets a function that is called whenever an <see cref="Exception"/> occurs during logging.
-        /// This allows the caller to apply its own logging.
-        /// Note: <typeparamref name="T"/> can be NULL.
-        /// Return true if the <see cref="Exception"/> needs to be thrown, return false if the <see cref="Exception"/> needs to be surpressed.
-        /// </summary>
-        public Func<Exception, T, bool> ExceptionCallback { get; set; }
-
-        /// <summary>
-        /// Gets or sets a function that allows to set <see cref="LogItem.CorrelationID"/>. 
-        /// </summary>
-        public Func<string> CorrelationIdCallback { get; set; }
-
-        /// <summary>
-        /// Gets or sets the maximum alloweed length of <see cref="Body.Data"/>. Any characters above the limit will be truncated before inserting into ElasticSearch.        
-        /// </summary>
-        public int MaxBodyContentLength { get; set; } = 4000;
-
-        /// <summary>
-        /// Gets or sets a function that will be called to determine indexname. 
-        /// The return value will be used as index name. 
-        /// The default index name is 'webservicelogs'
-        /// </summary>
-        public Func<string> IndexNameCallback { get; set; }
+        /// <param name="persister"></param>
+        public Logger(ILogItemPersister persister, LoggerOptions<T> options, IHttpContextAccessor httpContextAccessor = null)
+        {
+            _persister = persister;
+            _options = options;
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         /// <summary>
         /// Add a single log item with request/response data into ElasticSearch.
@@ -88,8 +72,8 @@ namespace Sushi.WebserviceLogger.Core
 
                 //set index name
                 string index = null;
-                if (IndexNameCallback != null)
-                    index = IndexNameCallback();
+                if (_options.IndexNameCallback != null)
+                    index = _options.IndexNameCallback();
                 if (string.IsNullOrWhiteSpace(index))
                     index = "webservicelogs";
 
@@ -163,23 +147,23 @@ namespace Sushi.WebserviceLogger.Core
 
             //set index name
             string index = null;
-            if (IndexNameCallback != null)
-                index = IndexNameCallback();
+            if (_options.IndexNameCallback != null)
+                index = _options.IndexNameCallback();
             if (string.IsNullOrWhiteSpace(index))
                 index = "webservicelogs" + logItem.Start.Value.ToString("yyyyMM");
 
             //call delegate correlationID  if defined
-            if (CorrelationIdCallback != null)
-                logItem.CorrelationID = CorrelationIdCallback();
+            if (_options.CorrelationIdCallback != null)
+                logItem.CorrelationID = _options.CorrelationIdCallback(_httpContextAccessor?.HttpContext);
 
             //call delegate logitem function if defined
-            if (AddLogItemCallback != null)
+            if (_options.AddLogItemCallback != null)
             {
-                var callbacks = AddLogItemCallback.GetInvocationList();
+                var callbacks = _options.AddLogItemCallback.GetInvocationList();
                 foreach (var callback in callbacks)
                 {
                     if (logItem != null)
-                        logItem = callback.DynamicInvoke(logItem) as T;
+                        logItem = callback.DynamicInvoke(logItem, _httpContextAccessor?.HttpContext) as T;
                 }
             }
             //logItem = AddLogItemCallback(logItem);
@@ -188,14 +172,14 @@ namespace Sushi.WebserviceLogger.Core
                 return null;
 
             //truncate log item body fields if too long
-            if (requestData?.Body?.Data?.Length > MaxBodyContentLength)
+            if (requestData?.Body?.Data?.Length > _options.MaxBodyContentLength)
             {
-                requestData.Body.Data = requestData.Body.Data.Substring(0, MaxBodyContentLength);
+                requestData.Body.Data = requestData.Body.Data.Substring(0, _options.MaxBodyContentLength);
                 requestData.Body.IsDataTruncated = true;
             }
-            if (responseData?.Body?.Data?.Length > MaxBodyContentLength)
+            if (responseData?.Body?.Data?.Length > _options.MaxBodyContentLength)
             {
-                responseData.Body.Data = responseData.Body.Data.Substring(0, MaxBodyContentLength);
+                responseData.Body.Data = responseData.Body.Data.Substring(0, _options.MaxBodyContentLength);
                 responseData.Body.IsDataTruncated = true;
             }
 
@@ -214,9 +198,9 @@ namespace Sushi.WebserviceLogger.Core
             //if it returns true, throw the exception
             //if there is no logging handler, always throw the exception
             bool throwException = true;
-            if (ExceptionCallback != null)
+            if (_options.ExceptionCallback != null)
             {
-                throwException = ExceptionCallback(ex, logItem);
+                throwException = _options.ExceptionCallback(ex, logItem, _httpContextAccessor?.HttpContext);
             }
             return throwException;
         }

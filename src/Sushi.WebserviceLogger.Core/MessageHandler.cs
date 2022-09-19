@@ -26,20 +26,6 @@ namespace Sushi.WebserviceLogger.Core
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log request made with <see cref="HttpClient"/>. 
-        /// Requests are logged with an instance of <typeparamref name="T"/>.
-        /// An instance of <see cref="SocketsHttpHandler"/> is used as inner handler.
-        /// The instance can be provided as argument when creating an instance of <see cref="HttpClient"/>.
-        /// </summary>        
-        /// <returns></returns>
-        public static MessageHandler<T> CreateHttpClientMessageHandler<T>(ILogItemPersister persister) where T : LogItem, new()
-        {
-            var result = new MessageHandler<T>(ContextType.Client, new Logger<T>(persister));
-            result.InnerHandler = new SocketsHttpHandler();
-            return result;
-        }
-
-        /// <summary>
         /// Creates an instance of <see cref="MessageHandler{T}"/> that can be used to log requests made with <see cref="HttpClient"/>. 
         /// Requests are logged with an instance of <typeparamref name="T"/>.
         /// An instance of <see cref="SocketsHttpHandler"/> is used as inner handler.

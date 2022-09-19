@@ -14,9 +14,9 @@ namespace Sushi.WebserviceLogger.Middleware
         /// <summary>
         /// Adds <see cref="MessageLogger{T}"/> to the <see cref="IApplicationBuilder"/> request execution pipeline.
         /// </summary>
-        public static IApplicationBuilder UseMessageLogger<T>(this IApplicationBuilder builder, MessageLoggerConfig<T> config) where T : LogItem, new()
+        public static IApplicationBuilder UseMessageLogger<T>(this IApplicationBuilder builder) where T : LogItem, new()
         {
-            return builder.UseMiddleware<MessageLogger<T>>(config);
+            return builder.UseMiddleware<MessageLogger<T>>();
         }
 
 
