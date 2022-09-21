@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Nest;
+using Sushi.Elastic.ClientFactory;
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
@@ -10,18 +11,19 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Persisters
 {
+    /// <summary>
+    /// Extension methods to configure a <see cref="IServiceCollection"/> for <see cref="ILogItemPersister"/> implementations.
+    /// </summary>
     public static class PersistersServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds registration to add a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.
-        /// Requires a service registration for <see cref="Nest.IElasticClient"/>.
+        /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
         /// </summary>        
         /// <returns></returns>
-        public static IServiceCollection AddQueuePersister(this IServiceCollection services, Func<IElasticClient> configureClient, Action<QueueProcessorOptions> options = null)
+        public static IServiceCollection AddQueuePersister(this IServiceCollection services, Func<IElasticClient> createClient, Action<QueueProcessorOptions> options = null)
         {
-            // registere elastic client
-            services.TryAddSingleton<ElasticClientFactory>();
-            services.Configure<ElasticClientFactoryOptions>(Common.ElasticClientName, options => options.CreateElasticClient = configureClient);
+            // register elastic client
+            services.AddElasticClient(Common.ElasticClientName, createClient);
 
             // register persister
             services.AddSingleton<QueuePersister>();
@@ -32,12 +34,17 @@ namespace Sushi.WebserviceLogger.Persisters
             if (options != null)
             { 
                 optionsBuilder.Configure(options);
-            }
+            }            
             services.AddHostedService<QueueProcessorHostedService>();
 
             return services;
         }
 
+        /// <summary>
+        /// Registers a <see cref="MockPersister"/>.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddMockPersister(this IServiceCollection services)
         {
             services.AddTransient<ILogItemPersister, MockPersister>();

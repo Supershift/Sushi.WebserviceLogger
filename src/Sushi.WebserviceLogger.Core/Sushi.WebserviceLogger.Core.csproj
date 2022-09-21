@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NEST" Version="7.14.1" />
+    <ProjectReference Include="..\Sushi.Elasticsearch.ClientFactory\Sushi.Elastic.ClientFactory.csproj" />
   </ItemGroup>
 
 </Project>

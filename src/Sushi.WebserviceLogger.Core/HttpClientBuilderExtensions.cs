@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Core
 {
+    /// <summary>
+    /// Extension methods to configure a <see cref="IHttpClientBuilder"/> for outgoing webservice logging.
+    /// </summary>
     public static class HttpClientBuilderExtensions
     {
         /// <summary>
-        /// 
+        /// Adds registrations for outgoing webservice logging to <see cref="IHttpClientBuilder.Services"/> and adds a <see cref="WebserviceLoggingHandler{T}"/> to the client.
         /// </summary>
         /// <typeparam name="TLogItem"></typeparam>
         /// <param name="clientBuilder"></param>

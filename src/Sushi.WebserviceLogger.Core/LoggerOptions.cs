@@ -3,12 +3,6 @@ using System;
 
 namespace Sushi.WebserviceLogger.Core
 {
-    public class LoggerOptions : LoggerOptions<LogItem>
-    {
-
-    }
-
-
     public class LoggerOptions<T> where T : LogItem, new()
     {
         /// <summary>

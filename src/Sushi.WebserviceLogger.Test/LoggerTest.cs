@@ -31,11 +31,11 @@ namespace Sushi.WebserviceLogger.Test
         {
             var myDemoRequest = new MyDemoRequest() { ProductID = "ABC-1234", Quantity = 2 };
 
-            var options = new LoggerOptions()
+            var options = new LoggerOptions<LogItem>()
             {
                 IndexNameCallback = () => "webservicelogs-test"
             };
-            var logger = new Logger(Initialization.Persister, options);
+            var logger = new Logger<LogItem>(Initialization.Persister, options);
 
             var requestData = new Core.RequestData()
             {
