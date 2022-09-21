@@ -27,7 +27,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Filter", "Sushi.WebserviceLogger.Filter\Sushi.WebserviceLogger.Filter.csproj", "{46CE584A-3E28-4B3E-BEAE-EE9B35CE247E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.WebserviceLogger.Middleware", "Sushi.WebserviceLogger.Middleware\Sushi.WebserviceLogger.Middleware.csproj", "{45C72BBA-B2A9-4548-A7C4-0D86F1848162}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Middleware", "Sushi.WebserviceLogger.Middleware\Sushi.WebserviceLogger.Middleware.csproj", "{45C72BBA-B2A9-4548-A7C4-0D86F1848162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.Elastic.ClientFactory", "Sushi.Elasticsearch.ClientFactory\Sushi.Elastic.ClientFactory.csproj", "{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45C72BBA-B2A9-4548-A7C4-0D86F1848162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

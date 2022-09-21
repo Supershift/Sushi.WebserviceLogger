@@ -25,11 +25,8 @@ namespace Sushi.WebserviceLogger.Test
             .Build();
 
 
-            //apply settings
-            string elasticUrl = config["elasticUrl"];
-            string elasticUser = config["elasticUsername"];
-            string elasticPassword = config["elasticPassword"];
-            var elasticSettings = new Nest.ConnectionSettings(new Uri(elasticUrl)).BasicAuthentication(elasticUser, elasticPassword).ThrowExceptions(true);
+            //apply settings            
+            var elasticSettings = new Nest.ConnectionSettings(new Elasticsearch.Net.InMemoryConnection());
             ElasticClient = new Nest.ElasticClient(elasticSettings);
             Persister = new InProcessPersister(ElasticClient);
         }

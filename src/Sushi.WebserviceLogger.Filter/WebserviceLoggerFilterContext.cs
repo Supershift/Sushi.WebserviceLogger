@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Filter
 {
-    public class MessageLoggerFilterContext
+    public class WebserviceLoggerFilterContext
     {
-        public MessageLoggerFilterContext(HttpContext httpContext)
+        public WebserviceLoggerFilterContext(HttpContext httpContext)
         {
             HttpContext = httpContext;
         }
         
         /// <summary>
-        /// If set to true, no further actions are performed by the <see cref="MessageLoggerFilter{T}"/>.
+        /// If set to true, no further actions are performed by the <see cref="WebserviceLoggerFilter{T}"/>.
         /// </summary>
         public bool StopLogging { get; set; }
 

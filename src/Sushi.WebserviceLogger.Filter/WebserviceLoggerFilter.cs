@@ -10,47 +10,31 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Filter
-{
-    /// <summary>
-    /// Filter to add webservice logging to Web API, using the default <see cref="LogItem"/>. 
-    /// The filter is not thread-safe and each request should create a new instance of the filter.
-    /// </summary>
-    public class MessageLoggerFilter : MessageLoggerFilter<LogItem>
-    {
-        /// <summary>
-        /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
-        /// </summary>
-        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<LogItem>> options, Logger<LogItem> logger, IHttpContextAccessor httpContextAccessor) : base(options, logger, httpContextAccessor)
-        {
-
-        }
-    }
-    
+{   
     /// <summary>
     /// Filter to add webservice logging to Web API. The filter is not thread-safe and each request should create a new instance of the filter.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class MessageLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
+    public class WebserviceLoggerFilter<T> : IActionFilter, IAsyncResourceFilter, IAlwaysRunResultFilter where T : LogItem, new()
     {
-        private MessageLoggerFilterOptions<T> _options;
-        private readonly Logger<T> _logger;
-        private readonly MessageLoggerFilterContext _filterContext;
+        private WebserviceLoggerFilterOptions<T> _options;
+        private readonly FilterLogger<T> _logger;
+        private readonly WebserviceLoggerFilterContext _filterContext;
         
         /// <summary>
-        /// Creates a new instance of <see cref="MessageLoggerFilter{T}"/>.
+        /// Creates a new instance of <see cref="WebserviceLoggerFilter{T}"/>.
         /// </summary>
-        public MessageLoggerFilter(IOptions<MessageLoggerFilterOptions<T>> options, Logger<T> logger, IHttpContextAccessor httpContextAccessor)
+        public WebserviceLoggerFilter(IOptions<WebserviceLoggerFilterOptions<T>> options, FilterLogger<T> logger, IHttpContextAccessor httpContextAccessor)
         {
             _options = options.Value;
             _logger = logger;
 
-
-            _filterContext = new MessageLoggerFilterContext(httpContextAccessor.HttpContext);
+            _filterContext = new WebserviceLoggerFilterContext(httpContextAccessor.HttpContext);
         }
 
         /// <summary>
-        /// Called at beginning of pipeline and calls <see cref="MessageLoggerFilterOptions{T}.OnRequestReceived"/>. 
-        /// After execution of the pipeline it gathers all data and calls the logger to persist the log data, calling <see cref="MessageLoggerFilterOptions{T}.OnLoggingDataCreated"/>.
+        /// Called at beginning of pipeline and calls <see cref="WebserviceLoggerFilterOptions{T}.OnRequestReceived"/>. 
+        /// After execution of the pipeline it gathers all data and calls the logger to persist the log data, calling <see cref="WebserviceLoggerFilterOptions{T}.OnLoggingDataCreated"/>.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="next"></param>
@@ -170,7 +154,7 @@ namespace Sushi.WebserviceLogger.Filter
         }
 
         /// <summary>
-        /// Called after the action has executed, allows logged request body to be inspected and changed by <see cref="MessageLoggerFilterOptions{T}.OnRequestBodyRead"/> event.
+        /// Called after the action has executed, allows logged request body to be inspected and changed by <see cref="WebserviceLoggerFilterOptions{T}.OnRequestBodyRead"/> event.
         /// </summary>
         /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
@@ -189,7 +173,7 @@ namespace Sushi.WebserviceLogger.Filter
         }
 
         /// <summary>
-        /// Called when the result has been written to the response. Reads the result and calls <see cref="MessageLoggerFilterOptions{T}.OnResponseBodyRead"/>.
+        /// Called when the result has been written to the response. Reads the result and calls <see cref="WebserviceLoggerFilterOptions{T}.OnResponseBodyRead"/>.
         /// </summary>
         /// <param name="context"></param>
         public void OnResultExecuted(ResultExecutedContext context)

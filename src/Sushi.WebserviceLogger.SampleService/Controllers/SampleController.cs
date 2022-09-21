@@ -14,7 +14,7 @@ namespace Sushi.WebserviceLogger.SampleService.Controllers
     [Route("mock/")]
     [Route("filter/")]
     [Route("none/")]    
-    [ServiceFilter(typeof(Filter.MessageLoggerFilter<MyLogItem>))]
+    [ServiceFilter(typeof(Filter.WebserviceLoggerFilter<LogItem>))]
     public class SampleController : ControllerBase
     {
         [HttpGet]
