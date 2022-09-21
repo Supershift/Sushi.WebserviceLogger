@@ -11,7 +11,7 @@ namespace Sushi.WebserviceLogger.Core
 {
     public class ElasticClientFactoryOptions
     {
-        public Func<IElasticClient> ElasticClientAction { get; set; }
+        public Func<IElasticClient> CreateElasticClient { get; set; }
     }
     
     public class ElasticClientFactory
@@ -27,6 +27,7 @@ namespace Sushi.WebserviceLogger.Core
         
         public IElasticClient GetClient(string name)
         {
+            // get the client for the given name. if it does not exist, create one.
             var client = _clients.GetOrAdd(name, name =>
             {
                 var options = _options.Get(name);
@@ -34,7 +35,7 @@ namespace Sushi.WebserviceLogger.Core
                 {
                     throw new Exception($"No ElasticClient registered for {name}");
                 }
-                var client = options.ElasticClientAction();
+                var client = options.CreateElasticClient();
                 return client;
             });
             

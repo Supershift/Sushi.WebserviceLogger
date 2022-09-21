@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sushi.WebserviceLogger.Core\Sushi.WebserviceLogger.Core.csproj" />
+    <ProjectReference Include="..\Sushi.WebserviceLogger.Filter\Sushi.WebserviceLogger.Filter.csproj" />
     <ProjectReference Include="..\Sushi.WebserviceLogger.Persisters\Sushi.WebserviceLogger.Persisters.csproj" />
   </ItemGroup>
 

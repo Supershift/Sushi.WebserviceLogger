@@ -16,7 +16,7 @@ namespace Sushi.WebserviceLogger.Test
         static ClientTest()
         {
             var logger = new Logger<LogItem>(Initialization.Persister, new LoggerOptions<LogItem>());
-            var handler = MessageHandler.CreateHttpClientMessageHandler<LogItem>(logger);
+            var handler = new WebserviceLoggingHandler<LogItem>(logger);
             Client = new System.Net.Http.HttpClient(handler);            
         }
 

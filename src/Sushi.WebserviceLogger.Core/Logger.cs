@@ -8,22 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Core
-{
-    /// <summary>
-    /// Sends request/response data to ElasticSearch using <see cref="LogItem"/>.
-    /// </summary>
-    public class Logger : Logger<LogItem>
-    {
-        /// <summary>
-        /// Creates an instance of <see cref="Logger"/>.
-        /// </summary>
-        /// <param name="persister"></param>
-        public Logger(ILogItemPersister persister, LoggerOptions<LogItem> options, IHttpContextAccessor httpContextAccessor = null) : base(persister, options)
-        {
-
-        }
-    }    
-    
+{   
     /// <summary>
     /// Sends request/response data to ElasticSearch using <typeparamref name="T"/>.
     /// </summary>
@@ -36,8 +21,7 @@ namespace Sushi.WebserviceLogger.Core
         /// <summary>
         /// Creates an instance of <see cref="Logger{T}"/>.
         /// </summary>
-        /// <param name="persister"></param>
-        [ActivatorUtilitiesConstructor]
+        /// <param name="persister"></param>        
         public Logger(ILogItemPersister persister, IOptionsMonitor<LoggerOptions<T>> options, IHttpContextAccessor httpContextAccessor = null)
         {
             _persister = persister;

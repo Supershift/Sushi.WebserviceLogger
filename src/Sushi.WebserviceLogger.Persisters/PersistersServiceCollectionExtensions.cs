@@ -21,7 +21,7 @@ namespace Sushi.WebserviceLogger.Persisters
         {
             // registere elastic client
             services.TryAddSingleton<ElasticClientFactory>();
-            services.Configure<ElasticClientFactoryOptions>(Common.ElasticClientName, options => options.ElasticClientAction = configureClient);
+            services.Configure<ElasticClientFactoryOptions>(Common.ElasticClientName, options => options.CreateElasticClient = configureClient);
 
             // register persister
             services.AddSingleton<QueuePersister>();
@@ -35,6 +35,12 @@ namespace Sushi.WebserviceLogger.Persisters
             }
             services.AddHostedService<QueueProcessorHostedService>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddMockPersister(this IServiceCollection services)
+        {
+            services.AddTransient<ILogItemPersister, MockPersister>();
             return services;
         }
     }

@@ -14,9 +14,6 @@ services.AddApplicationInsightsTelemetry();
 
 services.AddControllers();
 
-// register webservice logging
-services.AddWebserviceLogging<LogItem>(o => { });
-services.AddWebserviceLogging<MyLogItem>(o => { });
 
 //apply settings
 //string elasticUrl = Configuration["ElasticUrl"];
@@ -40,7 +37,10 @@ var inMemoryClient = new Nest.ElasticClient(new Nest.ConnectionSettings(new Elas
 services.AddQueuePersister(() => inMemoryClient);
 
 // register filter logging
-services.AddMessageLoggerFilter<MyLogItem>(o => { });
+services.AddWebserviceLoggerFilter<MyLogItem>(b =>
+{
+    
+});
 
 // Configure the HTTP request pipeline.
 var app = builder.Build();
