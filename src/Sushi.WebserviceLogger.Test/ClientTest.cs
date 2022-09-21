@@ -1,73 +1,67 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sushi.WebserviceLogger.Core;
+using Sushi.WebserviceLogger.Persisters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Test
 {
     [TestClass]
-    public class ClientTest
+    public class ClientTest : TestBase
     {
-        public static readonly System.Net.Http.HttpClient Client;
-
-        static ClientTest()
+        private string _name = "my_client_test";
+        private ServiceProvider _serviceProvider;
+        private HttpClient GetClient()
         {
-            var logger = new Logger<LogItem>(Initialization.Persister, new LoggerOptions<LogItem>());
-            var handler = new WebserviceLoggingHandler<LogItem>(logger);
-            Client = new System.Net.Http.HttpClient(handler);            
+            var factory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
+            return factory.CreateClient(_name);
         }
 
-        public string ServiceBaseUrl = "http://localhost/Sushi.WebserviceLogger.SampleService/api/";
+        private readonly List<LogItem> _logItems = new List<LogItem>();
+
+        public ClientTest()
+        {
+            // add services
+            var services = new ServiceCollection();
+
+            services.AddMockPersister();
+            services
+                .AddHttpClient(_name, client =>
+                {
+                    
+                })
+                .AddWebserviceLogging<LogItem>(o =>
+                {
+                    o.AddLogItemCallback = (logItem, c) => { _logItems.Add(logItem); return logItem; };
+                });            
+
+            // build provider
+            _serviceProvider = services.BuildServiceProvider();
+        }
 
         [TestMethod]
         public async Task LogClientGetTest()
         {
-            string url = ServiceBaseUrl + "ping";
-            using (var response = await Client.GetAsync(url))
-            {
-                Console.WriteLine(response.StatusCode);
-                Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            }
+            // call url
+            var client = GetClient();
+            string url = "https://www.google.com";
+            using var response = await client.GetAsync(url);
+
+            // get logged item
+            var logItem = _logItems.FirstOrDefault();
+
+            WriteResult(logItem);
+            Console.WriteLine(response.StatusCode);
+            
+            Assert.IsNotNull(logItem);
+            Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);            
         }
 
-        public class OrderRequest
-        {
-            public int Quantity { get; set; }
-            public string ProductID { get; set; }
-            public string ClientTransactionID { get; set; }
-        }
-
-        public class OrderResponse
-        {
-            public int Quantity { get; set; }
-            public string ProductID { get; set; }
-            public string ClientTransactionID { get; set; }
-            public Guid OrderID { get; set; }
-            public decimal Amount { get; set; }
-        }
-
-        [TestMethod]
-        public async Task LogClientPostTest()
-        {
-            string url = ServiceBaseUrl + "order";
-
-            var orderRequest = new OrderRequest()
-            {
-                ClientTransactionID = Guid.NewGuid().ToString(),
-                ProductID = "acd-124",
-                Quantity = 2
-            };
-
-            using (var requestContent = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(orderRequest), Encoding.UTF8, "application/json"))
-            using (var response = await Client.PostAsync(url, requestContent))
-            {
-                Console.WriteLine(response.StatusCode);
-                Console.WriteLine(await response.Content.ReadAsStringAsync());
-                Assert.AreEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
-            }
-        }
+        
     }
 }

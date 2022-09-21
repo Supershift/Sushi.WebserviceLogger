@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Sushi.WebserviceLogger.Core;
 using Sushi.WebserviceLogger.Persisters;
 using System;
 using System.Collections.Generic;
@@ -12,15 +15,32 @@ namespace Sushi.WebserviceLogger.Test
 {
     [TestClass]
     public class QueuePersisterTest
-    {
+    {   
+        private ServiceProvider _serviceProvider;
+        private readonly List<LogItem> _logItems = new List<LogItem>();
+
+        public QueuePersisterTest()
+        {
+            // add services
+            var services = new ServiceCollection();
+
+            var connection = new Elasticsearch.Net.InMemoryConnection();
+            var elasticClient = new Nest.ElasticClient(new Nest.ConnectionSettings(connection));
+            services.AddQueuePersister(elasticClient);            
+            
+            // build provider
+            _serviceProvider = services.BuildServiceProvider();
+        }
+
         [TestMethod]
         public async Task IndexItems()
         {
+            var queuePersister = _serviceProvider.GetRequiredService<QueuePersister>();
+            var hostedServices = _serviceProvider.GetServices<IHostedService>();
+            var processor = hostedServices.FirstOrDefault(x=> x is QueueProcessorHostedService) as QueueProcessorHostedService;
 
-            var queuePersister = new QueuePersister();
             int itemCount = 100;
-            var sw = new Stopwatch();
-            sw.Start();
+            
             for (int i = 0; i < itemCount; i++)
             {
                 var myLogItem = new MyLogItem()
@@ -32,14 +52,9 @@ namespace Sushi.WebserviceLogger.Test
                 };
                 await queuePersister.StoreLogItemAsync(myLogItem, "webservicelogs-test");
             }
-            Console.WriteLine($"Adding to queue: {sw.Elapsed}");
-
-            //process items
-            sw.Restart();
-            var processor = new QueueProcessorHostedService(queuePersister, Initialization.ElasticClient,
-                new Microsoft.Extensions.Options.OptionsWrapper<QueueProcessorOptions>(new QueueProcessorOptions() { MaxBatchSize = itemCount }));            
+            
             int itemsProcessed = await processor.ProcessQueueAsync();
-            Console.WriteLine($"Persisting queue: {sw.Elapsed}");
+            
             Console.WriteLine(itemsProcessed);
             Assert.AreEqual(itemsProcessed, itemCount);
         }

@@ -17,32 +17,27 @@ namespace Sushi.WebserviceLogger.Persisters
     /// </summary>
     public class QueueProcessorHostedService : BackgroundService
     {
+        private Nest.IElasticClient _elasticClient;
+        private readonly QueueProcessorOptions _options;
+        private readonly QueuePersister _persister;
+
         /// <summary>
         /// Creates a new instance of <see cref="QueueProcessorHostedService"/> which can be used to process logitems for the provided <paramref name="persister"/>.
         /// </summary>        
         [ActivatorUtilitiesConstructor]
         public QueueProcessorHostedService(QueuePersister persister, ElasticClientFactory elasticClientFactory, IOptions<QueueProcessorOptions> options)
         {
-            Persister = persister;
+            _persister = persister;
             _elasticClient = elasticClientFactory.GetClient(Common.ElasticClientName);
             _options = options.Value;
         }
 
         public QueueProcessorHostedService(QueuePersister persister, Nest.IElasticClient elasticClient, IOptions<QueueProcessorOptions> options)
         {
-            Persister = persister;
+            _persister = persister;
             _elasticClient = elasticClient;
             _options = options.Value;
         }
-
-        private Nest.IElasticClient _elasticClient;
-        private readonly QueueProcessorOptions _options;
-
-
-        /// <summary>
-        /// Gets the persister associated with this processor.
-        /// </summary>
-        public QueuePersister Persister { get; }
         
         /// <summary>
         /// Continously writes items from a <see cref="QueuePersister"/> to Elastic until cancellation is requested.
@@ -89,7 +84,7 @@ namespace Sushi.WebserviceLogger.Persisters
             for (int i = 0; i < _options.MaxBatchSize; i++)
             {
                 //get item from queue                
-                var item = Persister.Dequeue();
+                var item = _persister.Dequeue();
 
                 if (item != null)
                 {   

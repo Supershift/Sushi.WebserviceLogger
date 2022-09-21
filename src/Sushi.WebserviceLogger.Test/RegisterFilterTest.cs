@@ -30,7 +30,7 @@ namespace Sushi.WebserviceLogger.Test
             var provider = services.BuildServiceProvider();
 
             // get filter instance
-            var myConnector = provider.GetRequiredService<WebserviceLoggerFilter<LogItem>>();
+            var filter = provider.GetRequiredService<WebserviceLoggerFilter<LogItem>>();
         }
     }
 }

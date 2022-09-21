@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,7 +30,13 @@ namespace Sushi.WebserviceLogger.Filter
         /// <param name="services"></param>
         /// <returns></returns>
         public static IServiceCollection AddWebserviceLoggerFilter<T>(this IServiceCollection services, Action<FilterConfigurationBuilder<T>> configurationBuilder) where T : LogItem, new()
-        {   
+        {
+            // check if a persister is registrated
+            if (services.Any(x => x.ServiceType == typeof(ILogItemPersister)) == false)
+            {
+                throw new InvalidOperationException($"Cannot register webservice logger filter without a registration for {nameof(ILogItemPersister)}. Register a persister first.");
+            }
+            
             // create new builder
             var builder = new FilterConfigurationBuilder<T>();
 

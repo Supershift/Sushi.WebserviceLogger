@@ -20,7 +20,7 @@ namespace Sushi.WebserviceLogger.Persisters
         /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
         /// </summary>        
         /// <returns></returns>
-        public static IServiceCollection AddQueuePersister(this IServiceCollection services, Func<IElasticClient> createClient, Action<QueueProcessorOptions> options = null)
+        public static IServiceCollection AddQueuePersister(this IServiceCollection services, Func<IElasticClient> createClient, Action<QueueProcessorOptions> configureOptions = null)
         {
             // register elastic client
             services.AddElasticClient(Common.ElasticClientName, createClient);
@@ -31,12 +31,36 @@ namespace Sushi.WebserviceLogger.Persisters
 
             // register consumer of persister (a hosted services) and its options
             var optionsBuilder = services.AddOptions<QueueProcessorOptions>().ValidateDataAnnotations();
-            if (options != null)
+            if (configureOptions != null)
             { 
-                optionsBuilder.Configure(options);
+                optionsBuilder.Configure(configureOptions);
             }            
             services.AddHostedService<QueueProcessorHostedService>();
 
+            return services;
+        }
+
+        /// <summary>
+        /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
+        /// </summary>        
+        /// <returns></returns>
+        public static IServiceCollection AddQueuePersister(this IServiceCollection services, IElasticClient client, Action<QueueProcessorOptions> configureOptions = null)
+        {
+            return services.AddQueuePersister(() => client, configureOptions);
+        }
+
+        /// <summary>
+        /// Registers a <see cref="MockPersister"/>.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddMockPersister(this IServiceCollection services, Action<MockPersisterOptions> configureOptions)
+        {
+            var optionsBuilder = services.AddOptions<MockPersisterOptions>();
+            if (configureOptions != null)
+                optionsBuilder.Configure(configureOptions);
+            
+            services.AddTransient<ILogItemPersister, MockPersister>();
             return services;
         }
 
@@ -47,8 +71,7 @@ namespace Sushi.WebserviceLogger.Persisters
         /// <returns></returns>
         public static IServiceCollection AddMockPersister(this IServiceCollection services)
         {
-            services.AddTransient<ILogItemPersister, MockPersister>();
-            return services;
+            return services.AddMockPersister(null);
         }
     }
 }

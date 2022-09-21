@@ -1,4 +1,5 @@
-﻿using Sushi.WebserviceLogger.Core;
+﻿using Microsoft.Extensions.Options;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,26 +7,24 @@ using System.Threading.Tasks;
 
 namespace Sushi.WebserviceLogger.Persisters
 {
+    public class MockPersisterOptions
+    {
+        /// <summary>
+        /// Is invoked when a log item is stored on the persister.
+        /// </summary>
+        public Action<LogItem, string> Callback;
+    }
+    
     /// <summary>
     /// Mock persister which does not store the <see cref="LogItem"/> to anything. You can specify a delegate which is called when a persister would write to Elastic.
     /// </summary>
     public class MockPersister : ILogItemPersister
     {
-        /// <summary>
-        /// Is invoked when <see cref="StoreLogItem{T}(T, string)"/> or <see cref="StoreLogItemAsync{T}(T, string)"/> is called.
-        /// </summary>
-        public Action<LogItem, string> Callback;
-        
-        /// <summary>
-        /// If specified, invokes <see cref="Callback"/> with the specified parameters.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="logItem"></param>
-        /// <param name="index"></param>
-        public void StoreLogItem<T>(T logItem, string index) where T : LogItem
+        private readonly MockPersisterOptions _options;
+
+        public MockPersister(IOptions<MockPersisterOptions> options)
         {
-            if (Callback != null)
-                Callback(logItem, index);
+            _options = options.Value;
         }
 
         /// <summary>
@@ -37,8 +36,8 @@ namespace Sushi.WebserviceLogger.Persisters
         /// <returns></returns>
         public Task StoreLogItemAsync<T>(T logItem, string index) where T : LogItem
         {
-            if (Callback != null)
-                Callback(logItem, index);
+            if (_options.Callback != null)
+                _options.Callback(logItem, index);
             
             return Task.CompletedTask;
         }
