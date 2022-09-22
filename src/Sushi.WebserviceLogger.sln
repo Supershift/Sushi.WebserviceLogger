@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Filt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sushi.WebserviceLogger.Middleware", "Sushi.WebserviceLogger.Middleware\Sushi.WebserviceLogger.Middleware.csproj", "{45C72BBA-B2A9-4548-A7C4-0D86F1848162}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.Elastic.ClientFactory", "Sushi.Elasticsearch.ClientFactory\Sushi.Elastic.ClientFactory.csproj", "{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sushi.Elastic.ClientFactory", "Sushi.Elastic.ClientFactory\Sushi.Elastic.ClientFactory.csproj", "{D0EEE4B1-C2CB-4DFC-95CC-F2E8E46E1A60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
