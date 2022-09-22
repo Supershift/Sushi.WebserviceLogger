@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sushi.Elasticsearch.ClientFactory\Sushi.Elastic.ClientFactory.csproj" />
+    <ProjectReference Include="..\Sushi.Elastic.ClientFactory\Sushi.Elastic.ClientFactory.csproj" />
   </ItemGroup>
 
 </Project>
