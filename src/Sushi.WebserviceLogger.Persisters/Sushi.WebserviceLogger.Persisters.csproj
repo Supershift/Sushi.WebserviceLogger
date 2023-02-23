@@ -9,11 +9,11 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>1.0.0-rc6</Version>
+    <Version>1.0.0-rc7</Version>
     <Description>Contains additional persisters to store LogItems. Currently includes a queued persister to insert into Elastic with a background worker.</Description>
     <Authors>Mark de Vries</Authors>
     <Company>Supershift B.V.</Company>
-    <Copyright>2021 Supershift B.V.</Copyright>
+    <Copyright>Supershift B.V.</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/Supershift/Sushi.WebserviceLogger</RepositoryUrl>
