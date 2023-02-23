@@ -12,7 +12,7 @@ namespace Sushi.WebserviceLogger.Filter
     /// <summary>
     /// Extension methods for configuring <see cref="WebserviceLoggerFilter{T}"/> services.
     /// </summary>
-    public static class WebserviceLoggerFilterServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Adds incoming webservice logging using <see cref="WebserviceLoggerFilter{T}"/>.

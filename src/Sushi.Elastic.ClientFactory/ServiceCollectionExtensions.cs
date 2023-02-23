@@ -12,7 +12,7 @@ namespace Sushi.Elastic.ClientFactory
     /// <summary>
     /// Extension methods to configure a <see cref="IServiceCollection"/> for <see cref="ElasticClientFactory"/>.
     /// </summary>
-    public static class ElasticClientFactoryServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Registers <see cref="ElasticClientFactory"/> and adds a binding between <paramref name="name"/> and <paramref name="createClient"/> to the factory.

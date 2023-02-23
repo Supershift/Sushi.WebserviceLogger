@@ -14,7 +14,7 @@ namespace Sushi.WebserviceLogger.Persisters
     /// <summary>
     /// Extension methods to configure a <see cref="IServiceCollection"/> for <see cref="ILogItemPersister"/> implementations.
     /// </summary>
-    public static class PersistersServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
