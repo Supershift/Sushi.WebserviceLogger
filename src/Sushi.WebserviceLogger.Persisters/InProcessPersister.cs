@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Sushi.Elastic.ClientFactory;
+using Sushi.WebserviceLogger.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sushi.WebserviceLogger.Core
+namespace Sushi.WebserviceLogger.Persisters
 {
     /// <summary>
     /// Represents a persister which immediately writes log items to Elastic.

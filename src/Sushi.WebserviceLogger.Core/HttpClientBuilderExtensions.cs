@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,7 +16,19 @@ namespace Sushi.WebserviceLogger.Core
     public static class HttpClientBuilderExtensions
     {
         /// <summary>
-        /// Adds registrations for outgoing webservice logging to <see cref="IHttpClientBuilder.Services"/> and adds a <see cref="WebserviceLoggingHandler{T}"/> to the client.
+        /// Adds registrations for outgoing webservice logging to <see cref="IHttpClientBuilder.Services"/> and adds a <see cref="WebserviceLoggingHandler{LogItem}"/> to the <see cref="HttpClient"/>.
+        /// </summary>        
+        /// <param name="clientBuilder"></param>
+        /// <param name="configureOptions"></param>
+        /// <returns></returns>
+        public static IHttpClientBuilder AddWebserviceLogging(this IHttpClientBuilder clientBuilder, Action<LoggerOptions<LogItem>> configureOptions)
+        {
+            return AddWebserviceLogging<LogItem>(clientBuilder, configureOptions);
+        }
+
+
+        /// <summary>
+        /// Adds registrations for outgoing webservice logging to <see cref="IHttpClientBuilder.Services"/> and adds a <see cref="WebserviceLoggingHandler{T}"/> to the <see cref="HttpClient"/>.
         /// </summary>
         /// <typeparam name="TLogItem"></typeparam>
         /// <param name="clientBuilder"></param>
@@ -30,7 +43,7 @@ namespace Sushi.WebserviceLogger.Core
             services.AddHttpContextAccessor();
 
             // register logger
-            services.TryAddTransient(typeof(Logger<>));
+            services.AddLogger();
 
             // register options
             services.Configure(name, configureOptions);

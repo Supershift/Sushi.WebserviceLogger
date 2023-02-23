@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 namespace Sushi.WebserviceLogger.Persisters
 {
     /// <summary>
-    /// Implements a <see cref="IHostedService"/> to write queued <see cref="Core.LogItem"/> instances to Elastic. This is the preferred method to
-    /// process queued items in .NET Core / .NET 5.
+    /// Implements a <see cref="IHostedService"/> to write queued <see cref="Core.LogItem"/> instances to Elastic. This is the preferred method to process queued items.
     /// </summary>
     public class QueueProcessorHostedService : BackgroundService
     {

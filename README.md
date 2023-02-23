@@ -4,45 +4,65 @@
 ## Features
 Sushi WebserviceLogger is a set of NuGet libraries that allows you to easily log traffic from and to webservices into Elasticsearch.
 ## Requirements
-* ElasticSearch 7.7 or higher
-* .Net Standard 2.0
+* ElasticSearch 7.14 or higher
+* .Net 6
 ## Quick start
-Log outgoing traffic from an HttpClient:
+### Log outgoing traffic
 ```csharp
-var elasticConfig = new Core.ElasticConfiguration("elastic url", "elastic user", "elastic password");
+// register a persister
+service.AddInProcessPersister(new Nest.ElasticClient());
 
-var loggingHandler = Core.MessageHandler.CreateHttpClientMessageHandler<LogItem>(elasticConfig);
+// configure your HttpClient to use logging
+services
+  .AddHttpClient<MyConnector>(client =>
+  {
+      // configure client here
+      client.BaseAddress = new Uri("https://www.contosco.com");
+  })
+  .AddWebserviceLogging<LogItem>(o =>
+  {
+      // configure logging here
+  });
 
-// make sure your Client is only initialized once per application
-var client = new System.Net.Http.HttpClient(loggingHandler);     
-
-// call an endpoint
-using (var response = await Client.GetAsync("https://www.github.com"))
+// then inject the client into your class
+public class MyConnector
 {
-    Console.WriteLine(response.StatusCode);
-}
+  private readonly HttpClient _httpClient;
+  public MyConnector(HttpClient httpClient)
+  {
+    _httpClient = httpClient;
+  }
 
-// your outgoing call and the response are now logged in Elastic
-```
-## Error handling
-You can specify a delegate which will be called if an exception occurs during logging. This allows you to log the exception and take further action. The delegate needs to return a boolean, indicating if the exception needs to be thrown (true) or if the exception was handled (false).
+  public async GetAsync()
+  {    
+    await _httpClient.GetAsync("/myResource/12");
+  }
+}
+### Log incoming traffic
 ```csharp
-public bool ExceptionCallback(Exception exception, LogItem logItem)
+// register a persister
+service.AddInProcessPersister(new Nest.ElasticClient());
+
+// register filter logging
+services.AddWebserviceLoggerFilter<LogItem>(c => 
 {
-    // log the exception
-    Console.WriteLine(exception);
-	
-    // do not throw the exception
-    return false;
+  // configure logging here
+});
+
+// decorate your controller with a filter attribute
+[ServiceFilter(typeof(Filter.WebserviceLoggerFilter<LogItem>))]
+public class SampleController : ControllerBase
+{
+    [HttpGet]
+    [Route("ping")]        
+    public ActionResult Ping()
+    {
+        return Ok("hello world");
+    }
 }
 ```
-Add the callback to your logger instance:
-```csharp
-logger.ExceptionCallback += ExceptionCallback;
-```
-## Additional resources
-See the individual documentation for each package for more detailed instructions.
-* Sushi.WebserviceLogger.Core.Middleware
-  * Provides middleware to log incoming calls to ASP.NET Core
-* Sushi.WebserviceLogger.Asmx
-  * Provides a SoapExtension to log incoming SOAP calls to ASP.NET ASMX webservices
+
+## More reading
+You can find more info in the projects MD files:
+- [Persisters](/src/Sushi.WebserviceLogger.Persisters/README.md)
+- [Client Factory](/src/Sushi.Elastic.ClientFactory/README.md)

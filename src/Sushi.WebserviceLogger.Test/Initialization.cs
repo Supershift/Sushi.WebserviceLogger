@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Sushi.WebserviceLogger.Core;
+using Sushi.WebserviceLogger.Persisters;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
