@@ -43,7 +43,7 @@ namespace Sushi.WebserviceLogger.Core
             services.AddHttpContextAccessor();
 
             // register logger
-            services.TryAddTransient(typeof(Logger<>));
+            services.AddLogger();
 
             // register options
             services.Configure(name, configureOptions);

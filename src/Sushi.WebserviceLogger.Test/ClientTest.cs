@@ -51,7 +51,7 @@ namespace Sushi.WebserviceLogger.Test
             var client = GetClient();
             string url = "https://www.google.com";
             using var response = await client.GetAsync(url);
-
+            
             // get logged item
             var logItem = _logItems.FirstOrDefault();
 
