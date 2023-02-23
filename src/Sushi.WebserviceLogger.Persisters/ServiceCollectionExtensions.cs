@@ -17,6 +17,30 @@ namespace Sushi.WebserviceLogger.Persisters
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Registers dependencies for a <see cref="InProcessPersister"/>. 
+        /// </summary>        
+        /// <returns></returns>
+        public static IServiceCollection AddInProcessPersister(this IServiceCollection services, Func<IElasticClient> createClient)
+        {
+            // register elastic client
+            services.AddElasticClient(Common.ElasticClientName, createClient);
+
+            // register persister
+            services.TryAddTransient<InProcessPersister>();                        
+            
+            return services;
+        }
+
+        /// <summary>
+        /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
+        /// </summary>        
+        /// <returns></returns>
+        public static IServiceCollection AddInProcessPersister(this IServiceCollection services, IElasticClient client)
+        {
+            return services.AddInProcessPersister(() => client);
+        }
+
+        /// <summary>
         /// Registers dependencies for a <see cref="QueuePersister"/>. The persister is consumed by a hosted service implementation, <see cref="QueueProcessorHostedService"/>.        
         /// </summary>        
         /// <returns></returns>
@@ -51,8 +75,7 @@ namespace Sushi.WebserviceLogger.Persisters
 
         /// <summary>
         /// Registers a <see cref="MockPersister"/>.
-        /// </summary>
-        /// <param name="services"></param>
+        /// </summary>        
         /// <returns></returns>
         public static IServiceCollection AddMockPersister(this IServiceCollection services, Action<MockPersisterOptions> configureOptions)
         {
@@ -66,8 +89,7 @@ namespace Sushi.WebserviceLogger.Persisters
 
         /// <summary>
         /// Registers a <see cref="MockPersister"/>.
-        /// </summary>
-        /// <param name="services"></param>
+        /// </summary>        
         /// <returns></returns>
         public static IServiceCollection AddMockPersister(this IServiceCollection services)
         {
